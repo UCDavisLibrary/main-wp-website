@@ -1,0 +1,3 @@
+[submodule "ucdlib-theme-wp"]
+	path = ucdlib-theme-wp
+	url = git@github.com:UCDavisLibrary/ucdlib-theme-wp.git
