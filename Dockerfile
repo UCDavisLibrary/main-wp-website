@@ -31,6 +31,7 @@ RUN cd src/editor && npm install
 # copy public js code
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
 COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
+COPY ucdlib-theme-wp/src/public/webpack-dist.config.js src/public/webpack-dist.config.js
 
 # copy editor js code
 COPY ucdlib-theme-wp/src/editor/block-components src/editor/block-components
@@ -42,7 +43,9 @@ COPY ucdlib-theme-wp/src/editor/utils src/editor/utils
 COPY ucdlib-theme-wp/src/editor/exclude.js src/editor/exclude.js      
 COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
 
-# TODO: run npm dist
+# bundle js code
+RUN cd src/public && npm run dist
+RUN cd src/editor && npm run dist
 
 # Copy rest of our theme
 COPY ucdlib-theme-wp/assets assets
@@ -55,6 +58,13 @@ COPY ucdlib-theme-wp/views views
 # copy our custom plugins
 # WORKDIR "/usr/src/wordpress/wp-content/plugins"
 # COPY ucdlib-wp-plugins/foo wp-content/plugins/foo
+
+# override docker entry point
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# WHY???
+CMD ["apache2-foreground"] 
 
 # Back to site root so wordpress can do the rest of its thing
 WORKDIR "/var/www/html"
