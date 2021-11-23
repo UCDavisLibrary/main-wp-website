@@ -1,6 +1,7 @@
 FROM wordpress:5.8
 
-ENV THEME_ROOT=/var/www/html/wp-content/themes
+#ENV THEME_ROOT=/var/www/html/wp-content/themes
+ENV THEME_ROOT=/usr/src/wordpress/wp-content/themes
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
