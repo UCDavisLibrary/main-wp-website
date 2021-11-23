@@ -32,19 +32,23 @@ RUN mkdir -p src/editor
 # RUN cd src/editor && npm install
 
 # copy public js code
+RUN ls -al
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
+RUN ls -al
 COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
+RUN ls -al 
 COPY ucdlib-theme-wp/src/public/webpack-dist.config.js src/public/webpack-dist.config.js
+RUN ls -al node_modules
 
 # copy editor js code
-COPY ucdlib-theme-wp/src/editor/block-components src/editor/block-components
-COPY ucdlib-theme-wp/src/editor/blocks src/editor/blocks
-COPY ucdlib-theme-wp/src/editor/core-block-mods src/editor/core-block-mods
-COPY ucdlib-theme-wp/src/editor/formats src/editor/formats
-COPY ucdlib-theme-wp/src/editor/plugins src/editor/plugins
-COPY ucdlib-theme-wp/src/editor/utils src/editor/utils
-COPY ucdlib-theme-wp/src/editor/exclude.js src/editor/exclude.js      
-COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
+# COPY ucdlib-theme-wp/src/editor/block-components src/editor/block-components
+# COPY ucdlib-theme-wp/src/editor/blocks src/editor/blocks
+# COPY ucdlib-theme-wp/src/editor/core-block-mods src/editor/core-block-mods
+# COPY ucdlib-theme-wp/src/editor/formats src/editor/formats
+# COPY ucdlib-theme-wp/src/editor/plugins src/editor/plugins
+# COPY ucdlib-theme-wp/src/editor/utils src/editor/utils
+# COPY ucdlib-theme-wp/src/editor/exclude.js src/editor/exclude.js      
+# COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
 
 # bundle js code
 WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp/src/public"
