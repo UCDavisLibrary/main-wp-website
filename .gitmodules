@@ -1,6 +1,6 @@
 [submodule "ucdlib-theme-wp"]
 	path = ucdlib-theme-wp
-	url = git@github.com:UCDavisLibrary/ucdlib-theme-wp.git
+	url = https://github.com/UCDavisLibrary/ucdlib-theme-wp.git
 	branch = main
 [submodule "ucdlib-wp-plugins"]
 	path = ucdlib-wp-plugins
