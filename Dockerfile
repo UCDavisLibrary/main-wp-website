@@ -46,8 +46,8 @@ COPY ucdlib-theme-wp/src/editor/exclude.js src/editor/exclude.js
 COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
 
 # bundle js code
-RUN cd src/public && npm run dist
-RUN cd src/editor && npm run dist
+RUN cd src/public && more package.json && npm run dist
+RUN cd src/editor && more package.json && npm run dist
 
 # Copy rest of our theme
 COPY ucdlib-theme-wp/assets assets
