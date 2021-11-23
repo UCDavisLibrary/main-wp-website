@@ -22,9 +22,7 @@ RUN pwd && ls -al
 
 # COPY composer and npm depends and install
 RUN mkdir -p ucdlib-theme-wp/src/public
-
-RUN mkdir /src
-WORKDIR "/src"
+WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
 
 COPY ucdlib-theme-wp/src/public/package.json package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json package-lock.json
