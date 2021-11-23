@@ -1,5 +1,7 @@
 FROM wordpress:5.8
 
+ENV THEME_ROOT=/var/www/html/wp-content/themes
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
@@ -14,31 +16,35 @@ RUN cd wp-content/plugins && rm -f hello.php
 COPY composer.json .
 RUN composer install
 
-WORKDIR "/var/www/html/wp-content/themes"
+WORKDIR $THEME_ROOT
 
 # COPY composer and npm depends and install
 ENV COMPOSER_ALLOW_SUPERUSER=1;
 RUN mkdir ucdlib-theme-wp
-WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp"
+WORKDIR "$THEME_ROOT/ucdlib-theme-wp"
 
 RUN mkdir -p src/public
-COPY ucdlib-theme-wp/src/public/package.json src/public/package.json
-COPY ucdlib-theme-wp/src/public/package-lock.json src/public/package-lock.json
-RUN cd src/public && npm install && ls -al node_modules || true && pwd
+WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
 
-RUN mkdir -p src/editor
+COPY ucdlib-theme-wp/src/public/package.json package.json
+COPY ucdlib-theme-wp/src/public/package-lock.json package-lock.json
+RUN pwd && ls -al
+RUN npm install
+RUN pwd && ls -al
+
+# RUN mkdir -p src/editor
 # COPY ucdlib-theme-wp/src/editor/package.json src/editor/package.json
 # COPY ucdlib-theme-wp/src/editor/package-lock.json src/editor/package-lock.json
 # RUN cd src/editor && npm install
 
 # copy public js code
-RUN cd src/public && ls -al
-COPY ucdlib-theme-wp/src/public/scss src/public/scss
-RUN cd src/public && ls -al
-COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
-RUN cd src/public && ls -al 
-COPY ucdlib-theme-wp/src/public/webpack-dist.config.js src/public/webpack-dist.config.js
-RUN cd src/public && ls -al
+RUN pwd && ls -al
+COPY ucdlib-theme-wp/src/public/scss scss
+RUN pwd && ls -al
+COPY ucdlib-theme-wp/src/public/index.js index.js
+RUN pwd && ls -al
+COPY ucdlib-theme-wp/src/public/webpack-dist.config.js webpack-dist.config.js
+RUN pwd && ls -al
 
 # copy editor js code
 # COPY ucdlib-theme-wp/src/editor/block-components src/editor/block-components
