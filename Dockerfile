@@ -7,22 +7,23 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
 # drop OOTB themes and plugins
-WORKDIR "/usr/src/wordpress"
-RUN cd wp-content/themes && rm -rf */
-RUN cd wp-content/plugins && rm -rf */
-RUN cd wp-content/plugins && rm -f hello.php
+# WORKDIR "/usr/src/wordpress"
+# RUN cd wp-content/themes && rm -rf */
+# RUN cd wp-content/plugins && rm -rf */
+# RUN cd wp-content/plugins && rm -f hello.php
 
 # Install composer dependencies for theme and plugins
-ENV COMPOSER_ALLOW_SUPERUSER=1;
-COPY composer.json .
-RUN composer install
+# ENV COMPOSER_ALLOW_SUPERUSER=1;
+# COPY composer.json .
+# RUN composer install
 
-WORKDIR $THEME_ROOT
+# WORKDIR $THEME_ROOT
 
 # COPY composer and npm depends and install
 RUN mkdir -p ucdlib-theme-wp/src/public
 
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
+RUN mkdir /src
+WORKDIR "/src"
 
 COPY ucdlib-theme-wp/src/public/package.json package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json package-lock.json
