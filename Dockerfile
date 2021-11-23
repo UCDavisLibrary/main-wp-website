@@ -21,11 +21,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1;
 RUN mkdir ucdlib-theme-wp
 WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp"
 
-RUN mkdir src
+RUN mkdir -p src/public
 COPY ucdlib-theme-wp/src/public/package.json src/public/package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json src/public/package-lock.json
 RUN cd src/public && npm install
 
+RUN mkdir -p src/editor
 # COPY ucdlib-theme-wp/src/editor/package.json src/editor/package.json
 # COPY ucdlib-theme-wp/src/editor/package-lock.json src/editor/package-lock.json
 # RUN cd src/editor && npm install
