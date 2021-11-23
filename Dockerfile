@@ -24,7 +24,7 @@ WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp"
 RUN mkdir -p src/public
 COPY ucdlib-theme-wp/src/public/package.json src/public/package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json src/public/package-lock.json
-RUN cd src/public && npm install && ls -al node_modules || true
+RUN cd src/public && npm install && ls -al node_modules || true && pwd
 
 RUN mkdir -p src/editor
 # COPY ucdlib-theme-wp/src/editor/package.json src/editor/package.json
@@ -32,13 +32,13 @@ RUN mkdir -p src/editor
 # RUN cd src/editor && npm install
 
 # copy public js code
-RUN ls -al
+RUN cd src/public && ls -al
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
-RUN ls -al
+RUN cd src/public && ls -al
 COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
-RUN ls -al 
+RUN cd src/public && ls -al 
 COPY ucdlib-theme-wp/src/public/webpack-dist.config.js src/public/webpack-dist.config.js
-RUN ls -al node_modules
+RUN cd src/public && ls -al
 
 # copy editor js code
 # COPY ucdlib-theme-wp/src/editor/block-components src/editor/block-components
