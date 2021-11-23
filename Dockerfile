@@ -26,9 +26,9 @@ COPY ucdlib-theme-wp/src/public/package.json src/public/package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json src/public/package-lock.json
 RUN cd src/public && npm install
 
-COPY ucdlib-theme-wp/src/editor/package.json src/editor/package.json
-COPY ucdlib-theme-wp/src/editor/package-lock.json src/editor/package-lock.json
-RUN cd src/editor && npm install
+# COPY ucdlib-theme-wp/src/editor/package.json src/editor/package.json
+# COPY ucdlib-theme-wp/src/editor/package-lock.json src/editor/package-lock.json
+# RUN cd src/editor && npm install
 
 # copy public js code
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
@@ -46,8 +46,15 @@ COPY ucdlib-theme-wp/src/editor/exclude.js src/editor/exclude.js
 COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
 
 # bundle js code
-RUN cd src/public && more package.json && npm run dist
-RUN cd src/editor && more package.json && npm run dist
+WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp/src/public"
+RUN more package.json
+RUN ls -al
+RUN ls -al node_modules
+RUN ls -al node_modules/.bin
+RUN which npm || true
+RUN npm run webpack-info || true
+RUN npm run dist
+# RUN cd src/editor && more package.json && npm run dist
 
 # Copy rest of our theme
 COPY ucdlib-theme-wp/assets assets
