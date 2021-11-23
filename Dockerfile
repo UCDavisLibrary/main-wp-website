@@ -8,6 +8,11 @@ RUN apt-get install -y nodejs
 WORKDIR "/usr/src/wordpress"
 RUN cd wp-content/themes && rm -rf */
 RUN cd wp-content/plugins && rm -rf */
+RUN cd wp-content/plugins && rm -f hello.php
+
+# Install composer dependencies for theme and plugins
+COPY composer.json .
+RUN composer install
 
 WORKDIR "/var/www/html/wp-content/themes"
 
@@ -15,9 +20,6 @@ WORKDIR "/var/www/html/wp-content/themes"
 ENV COMPOSER_ALLOW_SUPERUSER=1;
 RUN mkdir ucdlib-theme-wp
 WORKDIR "/var/www/html/wp-content/themes/ucdlib-theme-wp"
-
-COPY ucdlib-theme-wp/composer.json .
-RUN composer install
 
 RUN mkdir src
 COPY ucdlib-theme-wp/src/public/package.json src/public/package.json
@@ -56,8 +58,8 @@ COPY ucdlib-theme-wp/views views
 # COPY wp-config.php .
 
 # copy our custom plugins
-# WORKDIR "/usr/src/wordpress/wp-content/plugins"
-# COPY ucdlib-wp-plugins/foo wp-content/plugins/foo
+WORKDIR "/var/www/html/wp-content/plugins"
+COPY ucdlib-wp-plugins/ucd-cas ucd-cas
 
 # override docker entry point
 COPY docker-entrypoint.sh /docker-entrypoint.sh

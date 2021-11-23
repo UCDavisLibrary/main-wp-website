@@ -1,0 +1,23 @@
+{
+    "name": "ucdlib/main-wp-website",
+    "description": "The main UC Davis Library website",
+    "type":"wordpress-theme",
+    "license": "MIT",
+    "minimum-stability" : "dev",
+    "authors": [
+      {
+        "email": "spelkey@ucdavis.edu",
+        "name": "spelkey"
+      }
+    ],
+    "repositories": [
+      {
+        "type": "composer",
+        "url": "https://wpackagist.org"
+      }
+    ],
+    "require": {
+      "timber/timber": "^2.0.0",
+      "jasig/phpcas" : "^1.4.0"
+    }
+  }
