@@ -70,6 +70,16 @@ COPY ucdlib-theme-wp/views views
 WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
 
+# set build tags
+ARG WEBSITE_TAG
+ENV WEBSITE_TAG ${WEBSITE_TAG}
+ARG APP_VERSION
+ENV APP_VERSION ${APP_VERSION}
+ARG BUILD_NUM
+ENV BUILD_NUM ${BUILD_NUM}
+ARG BUILD_TIME
+ENV BUILD_TIME ${BUILD_TIME}
+
 # Back to site root so wordpress can do the rest of its thing
 WORKDIR "/var/www/html"
 
