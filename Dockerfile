@@ -37,6 +37,12 @@ COPY ucdlib-theme-wp/src/editor/package.json package.json
 COPY ucdlib-theme-wp/src/editor/package-lock.json package-lock.json
 RUN npm install
 
+WORKDIR $THEME_ROOT
+RUN mkdir -p ucdlib-theme-wp/src/shared
+WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/shared"
+COPY ucdlib-theme-wp/src/shared/package.json package.json
+COPY ucdlib-theme-wp/src/shared/package-lock.json package-lock.json
+RUN npm install
 
 # copy public js code and build dist
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
