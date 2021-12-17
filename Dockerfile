@@ -44,6 +44,9 @@ COPY ucdlib-theme-wp/src/shared/package.json package.json
 COPY ucdlib-theme-wp/src/shared/package-lock.json package-lock.json
 RUN npm install
 
+# copy shared js code
+WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/shared"
+COPY ucdlib-theme-wp/src/shared/iconsets iconsets
 
 # copy public js code and build dist
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
@@ -51,10 +54,6 @@ COPY ucdlib-theme-wp/src/public/scss scss
 COPY ucdlib-theme-wp/src/public/index.js index.js
 COPY ucdlib-theme-wp/src/public/webpack-dist.config.js webpack-dist.config.js
 RUN npm run dist
-
-# copy shared js code
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/shared"
-COPY ucdlib-theme-wp/src/shared/iconsets iconsets
 
 # copy editor js code and build dist
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/editor"
