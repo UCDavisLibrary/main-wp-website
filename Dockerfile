@@ -23,8 +23,8 @@ RUN composer install
 WORKDIR $THEME_ROOT
 RUN mkdir ucdlib-theme-wp
 COPY ucdlib-theme-wp/assets ucdlib-theme-wp/assets
-RUN mkdir -p ucdlib-theme-wp/src/public
 
+RUN mkdir -p ucdlib-theme-wp/src/public
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
 COPY ucdlib-theme-wp/src/public/package.json package.json
 COPY ucdlib-theme-wp/src/public/package-lock.json package-lock.json
@@ -32,7 +32,6 @@ RUN npm install
 
 WORKDIR $THEME_ROOT
 RUN mkdir -p ucdlib-theme-wp/src/editor
-
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/editor"
 COPY ucdlib-theme-wp/src/editor/package.json package.json
 COPY ucdlib-theme-wp/src/editor/package-lock.json package-lock.json
