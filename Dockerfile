@@ -4,9 +4,17 @@ ENV SRC_ROOT=/usr/src/wordpress
 ENV THEME_ROOT="$SRC_ROOT/wp-content/themes"
 ENV PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
 
+# Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install node
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
+
+# WP CLI for downloading third-party plugins, among other things
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
 
 # drop OOTB themes and plugins
 WORKDIR $SRC_ROOT
@@ -78,6 +86,19 @@ COPY ucdlib-theme-wp/views views
 # copy our custom plugins
 WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
+
+# Download third-party plugins
+# note, they still have to be activated
+# advanced custom fields (acf)
+RUN apt-get install -y unzip
+ARG WP_ACF_KEY
+ENV WP_ACF_KEY ${WP_ACF_KEY}
+ENV ACF_BASE_URL="https://connect.advancedcustomfields.com/v2/plugins/download"
+ENV ACF_VERSION="5.11.4"
+ENV ACF_FULL_URL="$ACF_BASE_URL/?p=pro&k=$WP_ACF_KEY&t=$ACF_VERSION"
+RUN curl "$ACF_FULL_URL" -o advanced-custom-fields-pro.zip
+RUN unzip advanced-custom-fields-pro.zip
+RUN rm advanced-custom-fields-pro.zip
 
 # set build tags
 ARG WEBSITE_TAG
