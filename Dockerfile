@@ -11,13 +11,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
+WORKDIR $SRC_ROOT
+
 # WP CLI for downloading third-party plugins, among other things
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
 # drop OOTB themes and plugins
-WORKDIR $SRC_ROOT
 RUN cd wp-content/themes && rm -rf */
 RUN cd wp-content/plugins && rm -rf */
 RUN cd wp-content/plugins && rm -f hello.php
