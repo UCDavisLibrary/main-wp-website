@@ -87,6 +87,9 @@ COPY ucdlib-theme-wp/views views
 # copy our custom plugins
 WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
+COPY ucdlib-wp-plugins/ucdlib-locations ucdlib-locations
+RUN cd ucdlib-locations && npm install
+RUN cd ucdlib-locations && npm run dist
 
 # Download third-party plugins
 # note, they still have to be activated
