@@ -1,0 +1,17 @@
+{
+  "name": "@ucd-lib/main-wp-website-es",
+  "version": "0.0.1",
+  "description": "Indexer for main website",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/error-reporting": "^2.0.4",
+    "@google-cloud/monitoring": "^2.3.5",
+    "@google-cloud/storage": "^5.18.1"
+  }
+}
