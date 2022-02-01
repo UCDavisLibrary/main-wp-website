@@ -1,15 +1,34 @@
+ARG SRC_ROOT=/usr/src/wordpress
+ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
+ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
+ARG BUCKET_NAME=website-v3-content
+
+# Download third-party plugins from cloud bucket
+# note, they still have to be activated
+# advanced custom fields (acf)
+FROM google/cloud-sdk:alpine as gcloud
+WORKDIR /
+ARG GOOGLE_KEY_FILE_CONTENT
+ARG BUCKET_NAME
+
+RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
+  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip .
+
 FROM wordpress:5.8
 
-ENV SRC_ROOT=/usr/src/wordpress
-ENV THEME_ROOT="$SRC_ROOT/wp-content/themes"
-ENV PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
+ARG SRC_ROOT
+ENV SRC_ROOT=${SRC_ROOT}
+ARG THEME_ROOT
+ENV THEME_ROOT=${THEME_ROOT}
+ARG PLUGIN_ROOT
+ENV PLUGIN_ROOT=${PLUGIN_ROOT}
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install node
+# Install node & other apt dependencies
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get update && apt-get install -y nodejs unzip
 
 WORKDIR $SRC_ROOT
 
@@ -94,13 +113,14 @@ RUN cd ucdlib-locations/src/public && npm run dist
 # Download third-party plugins
 # note, they still have to be activated
 # advanced custom fields (acf)
-RUN apt-get install -y unzip
-ARG WP_ACF_KEY
-ENV WP_ACF_KEY ${WP_ACF_KEY}
-ENV ACF_BASE_URL="https://connect.advancedcustomfields.com/v2/plugins/download"
-ENV ACF_VERSION="5.11.4"
-ENV ACF_FULL_URL="$ACF_BASE_URL/?p=pro&k=$WP_ACF_KEY&t=$ACF_VERSION"
-RUN curl "$ACF_FULL_URL" -o advanced-custom-fields-pro.zip
+# RUN apt-get install -y unzip
+# ARG WP_ACF_KEY
+# ENV WP_ACF_KEY ${WP_ACF_KEY}
+# ENV ACF_BASE_URL="https://connect.advancedcustomfields.com/v2/plugins/download"
+# ENV ACF_VERSION="5.11.4"
+# ENV ACF_FULL_URL="$ACF_BASE_URL/?p=pro&k=$WP_ACF_KEY&t=$ACF_VERSION"
+# RUN curl "$ACF_FULL_URL" -o advanced-custom-fields-pro.zip
+COPY --from=gcloud /advanced-custom-fields-pro.zip .
 RUN unzip advanced-custom-fields-pro.zip
 RUN rm advanced-custom-fields-pro.zip
 
