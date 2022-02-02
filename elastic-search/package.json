@@ -11,7 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@google-cloud/error-reporting": "^2.0.4",
+    "@google-cloud/logging-bunyan": "^3.2.0",
     "@google-cloud/monitoring": "^2.3.5",
-    "@google-cloud/storage": "^5.18.1"
+    "@google-cloud/storage": "^5.18.1",
+    "bunyan": "^1.8.15",
+    "elasticsearch": "^16.7.2"
   }
 }

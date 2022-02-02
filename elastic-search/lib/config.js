@@ -10,7 +10,7 @@ if( env.GOOGLE_APPLICATION_CREDENTIALS ) {
 const config = {
 
   instance : {
-    name : env.INSTANCE_NAME || 'generic-instance-label',
+    name : env.INSTANCE_NAME || 'generic-website-instance-label',
     version : env.APP_VERSION || '-1'
   },
 
@@ -22,6 +22,22 @@ const config = {
   storage : {
     bucket : env.GOOGLE_CLOUD_BUCKET || 'libguides-indexer-main',
     indexFile : 'index.json'
+  },
+
+  logging : {
+    level : env.LOG_LEVEL || 'info'
+  },
+
+  elasticSearch : {
+    host : env.ELASTIC_SEARCH_HOST || 'elasticsearch',
+    port : env.ELASTIC_SEARCH_PORT || '9200',
+    username : env.ELASTIC_SEARCH_USERNAME || 'elastic',
+    password : env.ELASTIC_SEARCH_PASSWORD || 'changeme',
+    requestTimeout : env.ELASTIC_SEARCH_REQUEST_TIME || 3*60*1000,
+    indexAlias : 'main-website',
+    fields : {
+      exclude : ['_'],
+    }
   },
 
   metrics : {

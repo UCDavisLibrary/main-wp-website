@@ -1,10 +1,14 @@
+import crypto from 'crypto';
 
-function transformRecord(libguide, parentRecord) {
+function transformRecord(libguideSource, libguide, parentRecord) {
   let record = parentRecord || {};
 
   if( !parentRecord ) {
     record.id = libguide.url,
-    record.libguideUrlId = libguide.id;
+    record.libguide = {
+      id : libguide.id,
+      source : libguideSource
+    }
     record.title = libguide.dublinCore?.title;
     record.description = libguide.dublinCore?.description;
   } else {
@@ -35,9 +39,11 @@ function transformRecord(libguide, parentRecord) {
 
   if( libguide.children ) {
     for( let child of libguide.children ) {
-      record = transformRecord(child, record);
+      record = transformRecord(libguideSource, child, record);
     }
   }
+
+  record.md5 = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex')
 
   return record;
 }
