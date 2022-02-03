@@ -15,6 +15,7 @@
     "@google-cloud/monitoring": "^2.3.5",
     "@google-cloud/storage": "^5.18.1",
     "bunyan": "^1.8.15",
-    "elasticsearch": "^16.7.2"
+    "elasticsearch": "^16.7.2",
+    "mysql": "^2.18.1"
   }
 }

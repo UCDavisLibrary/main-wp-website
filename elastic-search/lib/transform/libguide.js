@@ -9,6 +9,7 @@ function transformRecord(libguideSource, libguide, parentRecord) {
       id : libguide.id,
       source : libguideSource
     }
+    record.type = 'libguide';
     record.title = libguide.dublinCore?.title;
     record.description = libguide.dublinCore?.description;
   } else {
@@ -23,10 +24,10 @@ function transformRecord(libguideSource, libguide, parentRecord) {
     );
   }
 
-  if( libguide.dublinCore?.subjects ) {
+  if( libguide.dublinCore?.subject ) {
     record.subjects = mergeSets(
       record.subjects,
-      libguide.dublinCore.subjects.spit(',').map(item => item.trim())
+      libguide.dublinCore.subject.split(',').map(item => item.trim())
     );
   }
 

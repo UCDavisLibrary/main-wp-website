@@ -26,22 +26,27 @@ class GCMetrics {
     }
   }
 
-  setDefaultLabels(type, labels) {
-    this.labels[type] = labels;
+  setDefaultLabels(harvester, type, labels) {
+    if( !this.labels[harvester] ) {
+      this.labels[harvester] = {};
+    }
+    this.labels[harvester][type] = labels;
   }
 
   log() {
     // apply args to labels
     let args = Array.from(arguments);
+    let harvesterName = args.shift(1);
     let metricName = args.shift(1);
     let labels = args.shift(1);
     
-
     // ensure strings for gcs labels
     for( let key in labels ) {
       labels[key] = labels[key]+'';
     }
-    labels = Object.assign(labels, this.labels[metricName]);
+    if( this.labels[harvesterName] && this.labels[harvesterName][metricName] ) {
+      labels = Object.assign(labels, this.labels[harvesterName][metricName]);
+    }
     args[0] = {labels};
 
 
@@ -97,8 +102,6 @@ class GCMetrics {
       },
     };
 
-    console.log(dataPoint);
-
     let timeSeriesData = {
       metric: {type, labels},
       resource: {
@@ -114,6 +117,8 @@ class GCMetrics {
       name: this.client.projectPath(config.google.projectId),
       timeSeries: [timeSeriesData],
     };
+
+    logger.info('sending metric', type, labels, value);
 
     // Writes time series data
     try {

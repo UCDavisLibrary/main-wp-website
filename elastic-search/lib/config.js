@@ -28,6 +28,13 @@ const config = {
     level : env.LOG_LEVEL || 'info'
   },
 
+  mysql : {
+    host : env.WORDPRESS_DB_HOST || 'db:3306',
+    database : env.WORDPRESS_DB_DATABASE || 'wordpress',
+    password : env.WORDPRESS_DB_PASSWORD || 'wordpress',
+    user : env.WORDPRESS_DB_USER || 'wordpress'
+  },
+
   elasticSearch : {
     host : env.ELASTIC_SEARCH_HOST || 'elasticsearch',
     port : env.ELASTIC_SEARCH_PORT || '9200',

@@ -15,11 +15,15 @@ class GCSHarvest {
     await elasticSearch.ensureIndex();
 
     const indexedData = await storage.jsonDownload(config.storage.indexFile);
-    metrics.setDefaultLabels('index-status', {
-      source : indexedData.id,
-      type : 'libguide',
-      instance : config.instance.name
-    });
+    metrics.setDefaultLabels(
+      'gcs-harvest', 
+      'index-status', 
+      {
+        source : indexedData.id,
+        type : 'libguide',
+        instance : config.instance.name
+      }
+    );
 
     let record;
 
@@ -40,6 +44,8 @@ class GCSHarvest {
           continue;
         }
 
+        // check the md5 hash with current elastic search record
+        // don't update if they are the same
         try {
           let resp = await elasticSearch.get(record.id);
           if( resp._source.md5 === record.md5 ) {
@@ -62,6 +68,7 @@ class GCSHarvest {
 
   log(status, url, e='') {
     metrics.log(
+      'gcs-harvest', 
       'index-status',
       {status},
       `indexer ${status}: `, url, e
