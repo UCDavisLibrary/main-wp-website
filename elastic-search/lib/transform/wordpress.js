@@ -25,7 +25,6 @@ function transformRecord(post) {
   parseBlocks(record, parse(post.post_content));
 
   record.md5 = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex');
-console.log(record);
   return record;
 }
 
