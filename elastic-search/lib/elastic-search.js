@@ -120,7 +120,6 @@ class ElasticSearch {
    * @returns {Promise}
    */
   async ensureIndex() {
-    return;
     let alias = config.elasticSearch.indexAlias;
     let exists = await this.client.indices.existsAlias({name: alias});
     

@@ -9,6 +9,15 @@ if( env.GOOGLE_APPLICATION_CREDENTIALS ) {
 
 const config = {
 
+  service : {
+    port : env.PORT || '3000'
+  },
+
+  libguides : {
+    harvestSchedule : env.LIBGUIDES_CRON || '5 0 * * *',
+    staleTime : env.LIBGUIDES_STALE_TIME || 1000 * 60 * 60 * 24 * 2 // 2 days
+  },
+
   instance : {
     name : env.INSTANCE_NAME || 'generic-website-instance-label',
     version : env.APP_VERSION || '-1'

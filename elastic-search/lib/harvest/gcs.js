@@ -3,18 +3,29 @@ import storage from '../storage.js';
 import config from '../config.js';
 import libguideTransform from '../transform/libguide.js';
 import elasticSearch from '../elastic-search.js';
+import logger from '../logger.js';
+import {CronJob} from 'cron';
 
 class GCSHarvest {
 
   constructor() {
+    logger.info('Scheduling LibGuides GCS crawl cron for: '+config.libguides.harvestSchedule);
+    this.cronJob = new CronJob(config.libguides.harvestSchedule, () => {
+      this.run();
+    }, null, true, 'America/Los_Angeles');
+    this.cronJob.start();
+  }
 
+  async init() {
+    await elasticSearch.connect();
+    await elasticSearch.ensureIndex();
   }
 
   async run() {
-    await elasticSearch.connect();
-    await elasticSearch.ensureIndex();
+    let indexedData = await storage.jsonDownload(config.storage.indexFile);
+    this.checkLastUpdated(indexedData.metadata);
+    indexedData = indexedData.data;
 
-    const indexedData = await storage.jsonDownload(config.storage.indexFile);
     metrics.setDefaultLabels(
       'gcs-harvest', 
       'index-status', 
@@ -31,6 +42,8 @@ class GCSHarvest {
       try {
         // download indexer json from bucket
         record = await storage.jsonDownload(url.id+'.json');
+        this.checkLastUpdated(record.metadata);
+        record = record.data;
 
         // transform record
         record = libguideTransform(indexedData.id, record);
@@ -75,9 +88,16 @@ class GCSHarvest {
     );
   }
 
+  checkLastUpdated(metadata) {
+    let updated = new Date(metadata.updated);
+
+    // TODO: add new metric for this
+    let lastUpdatedDiff =  Date.now() - updated.getTime();
+    if( lastUpdatedDiff > config.libguides.staleTime ) {
+      logger.warn(`Stale Harvest Data: ${metadata.name} is ${(lastUpdatedDiff/(1000*60*60)).toFixed(2)}h old and considered stale after ${(config.libguides.staleTime/(1000*60*60)).toFixed(2)}h`)
+    }
+  }
 }
 
 const instance = new GCSHarvest();
-instance.run();
-
 export default instance;

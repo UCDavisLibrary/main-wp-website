@@ -9,3 +9,5 @@ RUN npm install --save production
 
 COPY lib lib
 COPY index.js .
+
+CMD ["node", "index.js"]

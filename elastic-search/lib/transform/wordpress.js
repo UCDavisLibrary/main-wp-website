@@ -5,7 +5,7 @@ import htmlEntities from 'html-entities';
 
 function transformRecord(post) {
   let record = {
-    id : post.ID,
+    id : post.ID+'',
     title : post.post_title,
     type : post.post_type,
     description : post.post_name,

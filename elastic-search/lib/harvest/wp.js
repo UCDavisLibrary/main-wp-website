@@ -25,11 +25,11 @@ class WPHarvest {
   }
 
   async init() {
-    await mysql.connect();
-    await mysql.ensureSqlSchema();
-
     await elasticSearch.connect();
     await elasticSearch.ensureIndex();
+
+    await mysql.connect();
+    await mysql.ensureSqlSchema();
   }
 
   async run() {
@@ -47,6 +47,8 @@ class WPHarvest {
   }
 
   async reharvestAll() {
+    await this.init();
+
     let resp = await mysql.query(`select ID from wp_posts where post_status = 'publish' and post_type IN (?)`, [this.POST_TYPES]);
     for( let post of resp.results ) {
       await this.harvestPost(post.ID);
@@ -136,8 +138,4 @@ class WPHarvest {
 }
 
 const instance = new WPHarvest();
-
-await instance.init();
-await instance.startInterval();
-
-// export default instance;
+export default instance;
