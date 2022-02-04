@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import striptags from 'striptags';
 import { parse } from '@wordpress/block-serialization-default-parser';
+import htmlEntities from 'html-entities';
 
 function transformRecord(post) {
   let record = {
@@ -9,14 +10,22 @@ function transformRecord(post) {
     type : post.post_type,
     description : post.post_name,
     content : '',
-    blocks : {}
+    blocks : {},
+    subjects : [],
+    tags : []
   };
+
+  // set categories (we call them subjects) and tags
+  for( let term of post.terms ) {
+    if( term.taxonomy === 'tag' ) record.tags.push(htmlEntities.decode(term.name));
+    if( term.taxonomy === 'category' ) record.subjects.push(htmlEntities.decode(term.name));
+  }
 
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
 
   record.md5 = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex');
-
+console.log(record);
   return record;
 }
 

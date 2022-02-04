@@ -54,6 +54,8 @@ class WPHarvest {
   }
 
   async harvestPost(postId) {
+    let post = {};
+
     try {
       let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status from wp_posts where ID=${postId}`);
       
@@ -66,7 +68,7 @@ class WPHarvest {
       }
   
       // check this is a post type we are interested in harvesting
-      let post = qResp.results[0];
+      post = qResp.results[0];
       if( !this.POST_TYPES.includes(post.post_type)  ) {
         this.log(post.post_type, 'ignored-type', postId);
         return;
@@ -77,6 +79,20 @@ class WPHarvest {
         this.log(post.post_type, 'ignored-unpublished', postId);
         return;
       }
+
+      // get tag and category terms
+      qResp = await mysql.query(`select * 
+        from wp_term_relationships tr
+        left join wp_term_taxonomy tt on tr.term_taxonomy_id = tt.term_taxonomy_id
+        left join wp_terms t on t.term_id = tt.term_id
+        where object_id = ${postId};
+      `);
+      post.terms = qResp.results
+        .map(item => {
+          if( item.taxonomy === 'post_tag' ) item.taxonomy = 'tag';
+          return item;
+        })
+        .filter(item => ['tag', 'category'].includes(item.taxonomy));
 
       let record = wordpressTransform(post);
 
@@ -99,7 +115,7 @@ class WPHarvest {
       // send success message and remove all post_id from log table
       this.log(post.post_type, 'success', postId);
     } catch(e) {
-      this.log(post.post_type, 'error', postId, e);
+      this.log(post.post_type || 'unknown', 'error', postId, e);
     }
   }
 
