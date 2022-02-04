@@ -27,6 +27,9 @@ class WPHarvest {
   async init() {
     await mysql.connect();
     await mysql.ensureSqlSchema();
+
+    await elasticSearch.connect();
+    await elasticSearch.ensureIndex();
   }
 
   async run() {
@@ -57,7 +60,6 @@ class WPHarvest {
       // post doesn't exists
       // TODO: delete from elastic search
       if( qResp.results.length === 0 ) {
-        await this.deleteLog(postId);
         logger.warn('Still need to wire up elastic search delete for removed wp_post');
         this.log('unknown', 'ignored-deleted', postId);
         return;
@@ -66,14 +68,12 @@ class WPHarvest {
       // check this is a post type we are interested in harvesting
       let post = qResp.results[0];
       if( !this.POST_TYPES.includes(post.post_type)  ) {
-        await this.deleteLog(postId);
         this.log(post.post_type, 'ignored-type', postId);
         return;
       }
 
       // check this post is actually published
       if( post.post_status !== 'publish' ) {
-        await this.deleteLog(postId);
         this.log(post.post_type, 'ignored-unpublished', postId);
         return;
       }
@@ -98,19 +98,19 @@ class WPHarvest {
 
       // send success message and remove all post_id from log table
       this.log(post.post_type, 'success', postId);
-      await this.deleteLog(postId);
     } catch(e) {
       this.log(post.post_type, 'error', postId, e);
     }
   }
 
-  log(type, status, url, e='') {
+  log(type, status, postId, e='') {
     metrics.log(
       'wp-post-updates',
       'index-status',
       {status, type},
-      `indexer ${status}: `, url, e
+      `indexer ${status}: `, postId, e
     );
+    return this.deleteLog(postId);
   }
 
   deleteLog(postId) {

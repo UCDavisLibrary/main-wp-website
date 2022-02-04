@@ -14,6 +14,7 @@ class MySQL {
     let [host, port] = config.mysql.host.split(':');
     this.client = mysql.createPool({
       connectionLimit : 8,
+      multipleStatements: true,
       host : host,
       port : port,
       user : config.mysql.user,
