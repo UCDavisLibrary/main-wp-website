@@ -1,0 +1,25 @@
+{
+  "name": "@ucd-lib/main-wp-website-es",
+  "version": "0.0.1",
+  "description": "Indexer for main website",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/logging-bunyan": "^3.2.0",
+    "@google-cloud/monitoring": "^2.3.5",
+    "@google-cloud/storage": "^5.18.1",
+    "@wordpress/block-serialization-default-parser": "^4.3.0",
+    "bunyan": "^1.8.15",
+    "cron": "^1.8.2",
+    "elasticsearch": "^16.7.2",
+    "express": "^4.17.2",
+    "html-entities": "^2.3.2",
+    "mysql": "^2.18.1",
+    "striptags": "^3.2.0"
+  }
+}

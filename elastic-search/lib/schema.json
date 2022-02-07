@@ -1,0 +1,51 @@
+{
+  "dynamic" : false,
+
+  "properties" : {
+
+    "type" : {
+      "type" : "keyword"
+    },
+
+    "title" : {
+      "type" : "text",
+      "analyzer": "defaultAnalyzer"
+    },
+
+    "description" : {
+      "type" : "text",
+      "analyzer": "defaultAnalyzer"
+    },
+
+    "content" : {
+      "type" : "text",
+      "analyzer": "defaultAnalyzer"
+    },
+
+    "subjects" : {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
+    },
+
+    "tags" : {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
+    },
+
+    "updated" : {
+      "type" : "date"
+    }
+    
+  }
+
+}
