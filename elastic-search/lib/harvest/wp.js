@@ -9,15 +9,6 @@ class WPHarvest {
 
   constructor() {
     this.POST_TYPES = ['post', 'page', 'book'];
-
-    metrics.setDefaultLabels(
-      'wp-post-updates',
-      'index-status', 
-      {
-        source : 'wordpress',
-        instance : config.instance.name
-      }
-    );
   }
 
   startInterval() {
@@ -51,34 +42,34 @@ class WPHarvest {
 
     let resp = await mysql.query(`select ID from wp_posts where post_status = 'publish' and post_type IN (?)`, [this.POST_TYPES]);
     for( let post of resp.results ) {
-      await this.harvestPost(post.ID);
+      await this.harvestPost(post.ID, true);
     }
   }
 
-  async harvestPost(postId) {
+  async harvestPost(postId, reharvest=false) {
     let post = {};
 
     try {
-      let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status from wp_posts where ID=${postId}`);
+      let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status, post_modified_gmt from wp_posts where ID=${postId}`);
       
       // post doesn't exists
       // TODO: delete from elastic search
       if( qResp.results.length === 0 ) {
         logger.warn('Still need to wire up elastic search delete for removed wp_post');
-        this.log('unknown', 'ignored-deleted', postId);
+        this.recordStatus('unknown', 'ignored-deleted', postId);
         return;
       }
   
       // check this is a post type we are interested in harvesting
       post = qResp.results[0];
       if( !this.POST_TYPES.includes(post.post_type)  ) {
-        this.log(post.post_type, 'ignored-type', postId);
+        this.recordStatus(post.post_type, 'ignored-type', postId);
         return;
       }
 
       // check this post is actually published
       if( post.post_status !== 'publish' ) {
-        this.log(post.post_type, 'ignored-unpublished', postId);
+        this.recordStatus(post.post_type, 'ignored-unpublished', postId);
         return;
       }
 
@@ -103,10 +94,15 @@ class WPHarvest {
       try {
         let resp = await elasticSearch.get(record.id);
         if( resp._source.md5 === record.md5 ) {
-          this.log(record.type, 'ignored-no-update', postId);
+          this.recordStatus(record.type, 'ignored-no-update', postId);
           return;
         }
       } catch(e) {}
+
+      // record age of record about to be indexed, unless its a reharvest
+      if( reharvest !== true ) {
+        this.recordAge(post);
+      }
 
       // insert into elastic search
       let resp = await elasticSearch.insert(record);
@@ -115,20 +111,46 @@ class WPHarvest {
       }
 
       // send success message and remove all post_id from log table
-      this.log(post.post_type, 'success', postId);
+      this.recordStatus(post.post_type, 'success', postId);
     } catch(e) {
-      this.log(post.post_type || 'unknown', 'error', postId, e);
+      this.recordStatus(post.post_type || 'unknown', 'error', postId, e);
     }
   }
 
-  log(type, status, postId, e='') {
+  recordStatus(type, status, postId, error='') {
     metrics.log(
-      'wp-post-updates',
-      'index-status',
-      {status, type},
-      `indexer ${status}: `, postId, e
+      config.metrics.definitions['page-index-status'].type,
+      {status, type, source: 'wordpress'}, 1,
+      postId+'', {error}
     );
     return this.deleteLog(postId);
+  }
+
+  recordAge(post) {
+    let updated = new Date(post.post_modified_gmt);
+    let age =  Date.now() - updated.getTime();
+    age = parseFloat((age/(1000*60*60)).toFixed(2));
+
+    metrics.log(
+      config.metrics.definitions['page-index-age'].type,
+      {
+        source : 'wordpress',
+        type : post.post_type,
+      },
+      age,
+      post.ID+''
+    );
+
+    metrics.log(
+      config.metrics.definitions['page-index-max-age'].type,
+      {
+        source : 'wordpress',
+        type : post.post_type,
+      },
+      age,
+      post.ID,
+      {max: true, log: false}
+    );
   }
 
   deleteLog(postId) {

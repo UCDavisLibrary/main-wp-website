@@ -23,18 +23,8 @@ class GCSHarvest {
 
   async run() {
     let indexedData = await storage.jsonDownload(config.storage.indexFile);
-    this.checkLastUpdated(indexedData.metadata);
+    this.recordAge(indexedData, indexedData.metadata);
     indexedData = indexedData.data;
-
-    metrics.setDefaultLabels(
-      'gcs-harvest', 
-      'index-status', 
-      {
-        source : indexedData.id,
-        type : 'libguide',
-        instance : config.instance.name
-      }
-    );
 
     let record;
 
@@ -42,7 +32,6 @@ class GCSHarvest {
       try {
         // download indexer json from bucket
         record = await storage.jsonDownload(url.id+'.json');
-        this.checkLastUpdated(record.metadata);
         record = record.data;
 
         // transform record
@@ -53,7 +42,7 @@ class GCSHarvest {
         // these urls normally do not have dc.title which is mapped to title
         // in transformer
         if( !record.title ) {
-          this.log('ignored', url);
+          this.recordStatus(indexedData, 'ignored', url);
           continue;
         }
 
@@ -62,40 +51,65 @@ class GCSHarvest {
         try {
           let resp = await elasticSearch.get(record.id);
           if( resp._source.md5 === record.md5 ) {
-            this.log('ignored-no-update', url);
+            this.recordStatus(indexedData, 'ignored-no-update', url);
             continue;
           }
         } catch(e) {}
+
+        // log the age of record about to be indexed
+        this.recordAge(indexedData, record.metadata, url);
 
         let resp = await elasticSearch.insert(record);
         if( resp.result !== 'updated' && resp.result !== 'created' ) {
           throw new Error('Unknown result from elasicsearch insert: '+resp.result);
         }
 
-        this.log('success', url);
+        this.recordStatus(indexedData, 'success', url);
       } catch(e) {
-        this.log('error', url, e);
+        this.recordStatus(indexedData, 'error', url, e);
       }
     }
   }
 
-  log(status, url, e='') {
+  recordStatus(indexedData, status, url, error) {
     metrics.log(
-      'gcs-harvest', 
-      'index-status',
-      {status},
-      `indexer ${status}: `, url, e
+      config.metrics.definitions['page-index-status'].type,
+      {
+        status,
+        source : indexedData.id,
+        type : 'libguide',
+      },
+      1,
+      url, 
+      {error}
     );
   }
 
-  checkLastUpdated(metadata) {
+  recordAge(indexedData, metadata) {
     let updated = new Date(metadata.updated);
+    let age =  Date.now() - updated.getTime();
+    age = parseFloat((age/(1000*60*60)).toFixed(2));
 
-    // TODO: add new metric for this
-    let lastUpdatedDiff =  Date.now() - updated.getTime();
-    if( lastUpdatedDiff > config.libguides.staleTime ) {
-      logger.warn(`Stale Harvest Data: ${metadata.name} is ${(lastUpdatedDiff/(1000*60*60)).toFixed(2)}h old and considered stale after ${(config.libguides.staleTime/(1000*60*60)).toFixed(2)}h`)
-    }
+    metrics.log(
+      config.metrics.definitions['page-index-age'].type,
+      {
+        source : indexedData.id,
+        type : 'libguide',
+      },
+      age,
+      metadata.url
+    );
+
+    metrics.log(
+      config.metrics.definitions['page-index-max-age'].type,
+      {
+        source : indexedData.id,
+        type : 'libguide',
+      },
+      age,
+      metadata.url,
+      {max: true, log: false}
+    );
   }
 }
 
