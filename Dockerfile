@@ -95,7 +95,7 @@ WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
 
 COPY ucdlib-wp-plugins/ucdlib-locations/acf-json ucdlib-locations/acf-json
-COPY ucdlib-wp-plugins/ucdlib-locations/assets ucdlib-locations/assets
+#cCOPY ucdlib-wp-plugins/ucdlib-locations/assets ucdlib-locations/assets
 COPY ucdlib-wp-plugins/ucdlib-locations/includes ucdlib-locations/includes
 COPY ucdlib-wp-plugins/ucdlib-locations/views ucdlib-locations/views
 COPY ucdlib-wp-plugins/ucdlib-locations/ucdlib-locations.php ucdlib-locations/ucdlib-locations.php
