@@ -2,9 +2,12 @@ import fs from 'fs';
 const env = process.env;
 
 
+// GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_PROJECT_ID are required for
+// opencensus authentication
 let gcProjectId = '';
 if( env.GOOGLE_APPLICATION_CREDENTIALS ) {
   gcProjectId = JSON.parse(fs.readFileSync(env.GOOGLE_APPLICATION_CREDENTIALS, 'utf-8')).project_id;
+  env.GOOGLE_PROJECT_ID = gcProjectId;
 }
 
 const config = {
@@ -57,11 +60,28 @@ const config = {
   },
 
   metrics : {
+    exportInterval : parseInt(env.EXPORT_INTERVAL || 60),
+    indexAgeWarning : 48, // hours
+    indexStatus : {
+      SUCCESS : 'success',
+      ERROR : 'error',
+      IGNORED_NO_UPDATE : 'ignored-no-update',
+      IGNORED : 'ignored'
+    },
+
+    // this is dumb... the metric point type defined in the metric (below), has a deferent attribute
+    // name when actually reporting the dataPoint in the timeSeriesData. this maps the difference.
+    pointValueMap : {
+      INT64 : 'int64Value',
+      DOUBLE : 'doubleValue',
+      DISTRIBUTION : 'distributionValue'
+    },
+
     definitions : {
-      "index-status" : {
-        description: 'Main website ElasticSearch record indexed (success or failure)',
-        displayName: 'Main website record indexed',
-        type: 'custom.googleapis.com/website/es-record-indexed',
+      "page-index-status" : {
+        description: 'Webpage status at time of indexing (success, failure, ignored, etc)',
+        displayName: 'Main website page - ElasticSearch index status',
+        type: 'custom.googleapis.com/main-website/page-index-status',
         metricKind: 'GAUGE',
         valueType: 'INT64',
         unit: '1',
@@ -74,12 +94,12 @@ const config = {
           {
             key: 'source',
             valueType: 'STRING',
-            description: 'record data source, ie libguide, wordpress',
+            description: 'webpage source, ie libguide, wordpress',
           },
           {
             key: 'type',
             valueType: 'STRING',
-            description: 'record type, ie guide, news, website',
+            description: 'webpage type, ie guide, news, website',
           },
           {
             key: 'status',
@@ -87,7 +107,65 @@ const config = {
             description: 'ex: success, error, ignored',
           }
         ]
+      },
+
+      "page-index-age" : {
+        description: 'How old the record being indexed is at time of indexing',
+        displayName: 'Main website page - ElasticSearch index age',
+        type: 'custom.googleapis.com/main-website/page-index-age',
+        metricKind: 'GAUGE',
+        valueType: 'DISTRIBUTION',
+        bucketOptions: {
+          explicitBuckets: {
+            bounds: [1, 3, 6, 12, 24, 48, 96, 168]
+          }
+        },
+        unit: 'h',
+        labels: [
+          {
+            key: 'instance',
+            valueType: 'STRING',
+            description: 'Website instance name',
+          },
+          {
+            key: 'source',
+            valueType: 'STRING',
+            description: 'webpage source, ie libguide, wordpress',
+          },
+          {
+            key: 'type',
+            valueType: 'STRING',
+            description: 'webpage type, ie guide, news, website',
+          }
+        ]
+      },
+
+      "page-index-max-age" : {
+        description: 'Max age of record being indexed for given interval',
+        displayName: 'Main website page - ElasticSearch index max age',
+        type: 'custom.googleapis.com/main-website/page-index-max-age',
+        metricKind: 'GAUGE',
+        valueType: 'DOUBLE',
+        unit: 'h',
+        labels: [
+          {
+            key: 'instance',
+            valueType: 'STRING',
+            description: 'Website instance name',
+          },
+          {
+            key: 'source',
+            valueType: 'STRING',
+            description: 'webpage source, ie libguide, wordpress',
+          },
+          {
+            key: 'type',
+            valueType: 'STRING',
+            description: 'webpage type, ie guide, news, website',
+          }
+        ]
       }
+
     }
   }
 }
