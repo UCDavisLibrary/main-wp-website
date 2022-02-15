@@ -14,7 +14,7 @@ ARG BUCKET_NAME
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
   && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip .
 
-FROM wordpress:5.8
+FROM wordpress:5.9.0
 
 ARG SRC_ROOT
 ENV SRC_ROOT=${SRC_ROOT}
@@ -47,82 +47,79 @@ ENV COMPOSER_ALLOW_SUPERUSER=1;
 COPY composer.json .
 RUN composer install
 
-# COPY npm depends and install
+# COPY and install npm dependencies for theme and our plugins
 WORKDIR $THEME_ROOT
-RUN mkdir ucdlib-theme-wp
-COPY ucdlib-theme-wp/assets ucdlib-theme-wp/assets
-
 RUN mkdir -p ucdlib-theme-wp/src/public
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
 COPY ucdlib-theme-wp/src/public/package.json package.json
-COPY ucdlib-theme-wp/src/public/package-lock.json package-lock.json
-RUN npm install
+RUN npm install --only=prod
 
 WORKDIR $THEME_ROOT
 RUN mkdir -p ucdlib-theme-wp/src/editor
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/editor"
 COPY ucdlib-theme-wp/src/editor/package.json package.json
-COPY ucdlib-theme-wp/src/editor/package-lock.json package-lock.json
+RUN npm install --only=prod
+
+WORKDIR $PLUGIN_ROOT
+RUN mkdir -p ucdlib-assets/src/public
+WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src/public"
+COPY ucdlib-wp-plugins/ucdlib-assets/src/public/package-docker.json package.json
 RUN npm install
 
-WORKDIR $THEME_ROOT
-RUN mkdir -p ucdlib-theme-wp/src/shared
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/shared"
-COPY ucdlib-theme-wp/src/shared/package.json package.json
-COPY ucdlib-theme-wp/src/shared/package-lock.json package-lock.json
+WORKDIR $PLUGIN_ROOT
+RUN mkdir -p ucdlib-assets/src/editor
+WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src/editor"
+COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/package-docker.json package.json
 RUN npm install
 
-# copy shared js code
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/shared"
-COPY ucdlib-theme-wp/src/shared/iconsets iconsets
+WORKDIR $PLUGIN_ROOT
+RUN mkdir -p ucdlib-locations/src/public
+WORKDIR "$PLUGIN_ROOT/ucdlib-locations/src/public"
+COPY ucdlib-wp-plugins/ucdlib-locations/src/public/package.json package.json
+RUN npm install --only=prod
 
-# copy public js code and build dist
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/public"
-COPY ucdlib-theme-wp/src/public/scss scss
-COPY ucdlib-theme-wp/src/public/index.js index.js
-COPY ucdlib-theme-wp/src/public/webpack-dist.config.js webpack-dist.config.js
-RUN npm run dist
 
-# copy editor js code and build dist
-WORKDIR "$THEME_ROOT/ucdlib-theme-wp/src/editor"
-COPY ucdlib-theme-wp/src/editor/block-components block-components
-COPY ucdlib-theme-wp/src/editor/blocks blocks
-COPY ucdlib-theme-wp/src/editor/core-block-mods core-block-mods
-COPY ucdlib-theme-wp/src/editor/formats formats
-COPY ucdlib-theme-wp/src/editor/plugins plugins
-COPY ucdlib-theme-wp/src/editor/utils utils
-COPY ucdlib-theme-wp/src/editor/exclude.js exclude.js      
-COPY ucdlib-theme-wp/src/editor/index.js index.js
-RUN npm run dist
-
-# Copy rest of our theme
+# copy rest of theme
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp"
 COPY ucdlib-theme-wp/theme theme
 COPY ucdlib-theme-wp/views views
+COPY ucdlib-theme-wp/assets assets
+COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
+COPY ucdlib-theme-wp/src/editor/lib src/editor/lib
+COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
+COPY ucdlib-theme-wp/src/public/scss src/public/scss
+COPY ucdlib-theme-wp/src/public/lib src/public/lib
 
-# copy other files
-# COPY wp-config.php .
-
-# copy our custom plugins
+# copy rest of our custom plugins
 WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
-COPY ucdlib-wp-plugins/ucdlib-locations ucdlib-locations
-RUN cd ucdlib-locations/src/public && npm install
-RUN cd ucdlib-locations/src/public && npm run dist
 
-# Download third-party plugins
-# note, they still have to be activated
-# advanced custom fields (acf)
-# RUN apt-get install -y unzip
-# ARG WP_ACF_KEY
-# ENV WP_ACF_KEY ${WP_ACF_KEY}
-# ENV ACF_BASE_URL="https://connect.advancedcustomfields.com/v2/plugins/download"
-# ENV ACF_VERSION="5.11.4"
-# ENV ACF_FULL_URL="$ACF_BASE_URL/?p=pro&k=$WP_ACF_KEY&t=$ACF_VERSION"
-# RUN curl "$ACF_FULL_URL" -o advanced-custom-fields-pro.zip
+COPY ucdlib-wp-plugins/ucdlib-locations/acf-json ucdlib-locations/acf-json
+COPY ucdlib-wp-plugins/ucdlib-locations/assets ucdlib-locations/assets
+COPY ucdlib-wp-plugins/ucdlib-locations/includes ucdlib-locations/includes
+COPY ucdlib-wp-plugins/ucdlib-locations/views ucdlib-locations/views
+COPY ucdlib-wp-plugins/ucdlib-locations/ucdlib-locations.php ucdlib-locations/ucdlib-locations.php
+COPY ucdlib-wp-plugins/ucdlib-locations/src/public/index.js ucdlib-locations/src/public/index.js
+COPY ucdlib-wp-plugins/ucdlib-locations/src/public/lib ucdlib-locations/src/public/lib
+
+COPY ucdlib-wp-plugins/ucdlib-assets/assets ucdlib-assets/assets
+COPY ucdlib-wp-plugins/ucdlib-assets/includes ucdlib-assets/includes
+COPY ucdlib-wp-plugins/ucdlib-assets/ucdlib-assets.php ucdlib-assets/ucdlib-assets.php
+COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js ucdlib-assets/src/editor/ucdlib-editor.js
+COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib ucdlib-assets/src/editor/lib
+COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js ucdlib-assets/src/public/index.js
+COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib ucdlib-assets/src/public/lib
+
+# place third-party plugins
+WORKDIR $PLUGIN_ROOT
 COPY --from=gcloud /advanced-custom-fields-pro.zip .
 RUN unzip advanced-custom-fields-pro.zip
 RUN rm advanced-custom-fields-pro.zip
+
+# build site static assets
+WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"
+RUN cd public && npm run dist
+RUN cd editor && npm run dist
 
 # set build tags
 ARG WEBSITE_TAG
