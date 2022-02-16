@@ -41,10 +41,10 @@ const config = {
   },
 
   mysql : {
-    host : env.WORDPRESS_DB_HOST || 'db:3306',
-    database : env.WORDPRESS_DB_DATABASE || 'wordpress',
-    password : env.WORDPRESS_DB_PASSWORD || 'wordpress',
-    user : env.WORDPRESS_DB_USER || 'wordpress'
+    host : env.WORDPRESS_DB_HOST || env.DB_HOST || 'db:3306',
+    database : env.WORDPRESS_DB_DATABASE || env.DB_DATABASE || 'wordpress',
+    password : env.WORDPRESS_DB_PASSWORD || env.DB_PASSWORD ||  'wordpress',
+    user : env.WORDPRESS_DB_USER || env.DB_USER || 'wordpress'
   },
 
   elasticSearch : {
