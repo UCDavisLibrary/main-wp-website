@@ -57,7 +57,7 @@ class GCSHarvest {
         } catch(e) {}
 
         // log the age of record about to be indexed
-        this.recordAge(indexedData, record.metadata, url);
+        this.recordAge(indexedData, record);
 
         let resp = await elasticSearch.insert(record);
         if( resp.result !== 'updated' && resp.result !== 'created' ) {
@@ -86,7 +86,7 @@ class GCSHarvest {
   }
 
   recordAge(indexedData, metadata) {
-    let updated = new Date(metadata.updated);
+    let updated = new Date(metadata.timestamp);
     let age =  Date.now() - updated.getTime();
     age = parseFloat((age/(1000*60*60)).toFixed(2));
 
