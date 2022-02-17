@@ -17,7 +17,7 @@ const config = {
   },
 
   libguides : {
-    harvestSchedule : env.LIBGUIDES_CRON || '5 0 * * *',
+    harvestSchedule : env.LIBGUIDES_CRON || '0 5 * * *',
     staleTime : env.LIBGUIDES_STALE_TIME || 1000 * 60 * 60 * 24 * 2 // 2 days
   },
 
