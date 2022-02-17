@@ -23,7 +23,7 @@ class GCSHarvest {
 
   async run() {
     let indexedData = await storage.jsonDownload(config.storage.indexFile);
-    this.recordAge(indexedData.data, indexedData.metadata, indexedData.data.id);
+    this.recordAge(indexedData.data, indexedData.metadata.updated, indexedData.data.id);
     indexedData = indexedData.data;
 
     let record;
@@ -32,7 +32,7 @@ class GCSHarvest {
       try {
         // download indexer json from bucket
         record = await storage.jsonDownload(url.id+'.json');
-        let metadata = record.metadata;
+        let timestamp = record.data.timestamp;
         record = record.data;
 
         // transform record
@@ -58,7 +58,7 @@ class GCSHarvest {
         } catch(e) {}
 
         // log the age of record about to be indexed
-        this.recordAge(indexedData, metadata, url.url);
+        this.recordAge(indexedData, timestamp, url.url);
 
         let resp = await elasticSearch.insert(record);
         if( resp.result !== 'updated' && resp.result !== 'created' ) {
@@ -86,8 +86,8 @@ class GCSHarvest {
     );
   }
 
-  recordAge(indexedData, metadata, url) {
-    let updated = new Date(metadata.updated);
+  recordAge(indexedData, updated, url) {
+    updated = new Date(updated);
     let age =  Date.now() - updated.getTime();
     age = parseFloat((age/(1000*60*60)).toFixed(2));
 
