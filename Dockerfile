@@ -78,6 +78,12 @@ WORKDIR "$PLUGIN_ROOT/ucdlib-locations/src/public"
 COPY ucdlib-wp-plugins/ucdlib-locations/src/public/package.json package.json
 RUN npm install --only=prod
 
+WORKDIR $PLUGIN_ROOT
+RUN mkdir -p ucdlib-migration/src/editor
+WORKDIR "$PLUGIN_ROOT/ucdlib-migration/src/editor"
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/package-docker.json package.json
+RUN npm install --only=prod
+
 
 # copy rest of theme
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp"
@@ -109,6 +115,11 @@ COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js ucdlib-assets/s
 COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib ucdlib-assets/src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js ucdlib-assets/src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib ucdlib-assets/src/public/lib
+
+COPY ucdlib-wp-plugins/ucdlib-migration/includes ucdlib-migration/includes
+COPY ucdlib-wp-plugins/ucdlib-migration/ucdlib-migration.php ucdlib-migration/ucdlib-migration.php
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/index.js ucdlib-migration/src/editor/index.js
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/lib ucdlib-migration/src/editor/lib
 
 # place third-party plugins
 WORKDIR $PLUGIN_ROOT
