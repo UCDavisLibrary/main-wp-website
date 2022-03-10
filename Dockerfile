@@ -12,7 +12,8 @@ ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
-  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip .
+  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip . \
+  && gsutil cp gs://${BUCKET_NAME}/plugins/redirection.zip .
 
 FROM wordpress:5.9.0
 
@@ -127,6 +128,10 @@ WORKDIR $PLUGIN_ROOT
 COPY --from=gcloud /advanced-custom-fields-pro.zip .
 RUN unzip advanced-custom-fields-pro.zip
 RUN rm advanced-custom-fields-pro.zip
+
+COPY --from=gcloud /redirection.zip .
+RUN unzip redirection.zip
+RUN rm redirection.zip
 
 # build site static assets
 WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"
