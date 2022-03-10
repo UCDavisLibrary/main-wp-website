@@ -117,6 +117,7 @@ COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js ucdlib-assets/src/publi
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib ucdlib-assets/src/public/lib
 
 COPY ucdlib-wp-plugins/ucdlib-migration/includes ucdlib-migration/includes
+COPY ucdlib-wp-plugins/ucdlib-migration/views ucdlib-migration/views
 COPY ucdlib-wp-plugins/ucdlib-migration/ucdlib-migration.php ucdlib-migration/ucdlib-migration.php
 COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/index.js ucdlib-migration/src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/lib ucdlib-migration/src/editor/lib
