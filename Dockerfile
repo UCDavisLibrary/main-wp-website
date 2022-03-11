@@ -12,7 +12,8 @@ ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
-  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip .
+  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip . \
+  && gsutil cp gs://${BUCKET_NAME}/plugins/redirection.zip .
 
 FROM wordpress:5.9.0
 
@@ -78,6 +79,12 @@ WORKDIR "$PLUGIN_ROOT/ucdlib-locations/src/public"
 COPY ucdlib-wp-plugins/ucdlib-locations/src/public/package.json package.json
 RUN npm install --only=prod
 
+WORKDIR $PLUGIN_ROOT
+RUN mkdir -p ucdlib-migration/src/editor
+WORKDIR "$PLUGIN_ROOT/ucdlib-migration/src/editor"
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/package-docker.json package.json
+RUN npm install --only=prod
+
 
 # copy rest of theme
 WORKDIR "$THEME_ROOT/ucdlib-theme-wp"
@@ -110,11 +117,21 @@ COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib ucdlib-assets/src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js ucdlib-assets/src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib ucdlib-assets/src/public/lib
 
+COPY ucdlib-wp-plugins/ucdlib-migration/includes ucdlib-migration/includes
+COPY ucdlib-wp-plugins/ucdlib-migration/views ucdlib-migration/views
+COPY ucdlib-wp-plugins/ucdlib-migration/ucdlib-migration.php ucdlib-migration/ucdlib-migration.php
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/index.js ucdlib-migration/src/editor/index.js
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/lib ucdlib-migration/src/editor/lib
+
 # place third-party plugins
 WORKDIR $PLUGIN_ROOT
 COPY --from=gcloud /advanced-custom-fields-pro.zip .
 RUN unzip advanced-custom-fields-pro.zip
 RUN rm advanced-custom-fields-pro.zip
+
+COPY --from=gcloud /redirection.zip .
+RUN unzip redirection.zip
+RUN rm redirection.zip
 
 # build site static assets
 WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"

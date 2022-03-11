@@ -19,5 +19,5 @@
     "require": {
       "timber/timber": "^2.0.0",
       "jasig/phpcas" : "^1.4.0"
-    }
+    } 
   }
