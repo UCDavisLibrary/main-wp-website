@@ -101,6 +101,7 @@ COPY ucdlib-theme-wp/src/public/lib src/public/lib
 WORKDIR $PLUGIN_ROOT
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
 COPY ucdlib-wp-plugins/ucdlib-search ucdlib-search
+COPY ucdlib-wp-plugins/ucdlib-directory ucdlib-directory
 
 COPY ucdlib-wp-plugins/ucdlib-locations/acf-json ucdlib-locations/acf-json
 #cCOPY ucdlib-wp-plugins/ucdlib-locations/assets ucdlib-locations/assets
