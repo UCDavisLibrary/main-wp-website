@@ -176,6 +176,24 @@ class ElasticSearch {
                   tokenizer: 'standard',
                   filter: ["lowercase", "stop", "asciifolding"]
                 },
+
+                trigram: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: ["lowercase","stop", "asciifolding","shingle"]
+                },
+                reverse: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: ["lowercase","stop", "asciifolding","reverse"]
+                }
+              },
+              filter: {
+                shingle: {
+                  type: "shingle",
+                  min_shingle_size: 2,
+                  max_shingle_size: 3
+                }
               }
             }
           },
