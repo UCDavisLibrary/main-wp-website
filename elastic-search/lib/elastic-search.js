@@ -131,9 +131,27 @@ class ElasticSearch {
     logger.info(`No alias exists: ${alias}, creating...`);
 
     let indexName = await this.createIndex(alias);
+    await this.setAlias(indexName);
+  }
+
+  async setAlias(indexName) {
+    let alias = config.elasticSearch.indexAlias;
     await this.client.indices.putAlias({index: indexName, name: alias});
-    
-    logger.info(`Index ${indexName} created pointing at alias ${alias}`);
+    logger.info(`Alias ${alias} pointed at index ${indexName}`);
+  }
+
+  async deleteIndex() {
+    let alias = config.elasticSearch.indexAlias;
+    let exists = await this.client.indices.existsAlias({name: alias});
+    if( !exists ) return;
+
+    let info = await this.client.indices.getAlias({name: alias});
+    let indexes = Object.keys(info);
+    if( indexes.length === 0 ) return;
+
+    logger.info(`deleting index: ${indexes[0]}`);
+
+    await this.client.indices.delete({index: indexes[0]});
   }
 
   /**
@@ -165,6 +183,12 @@ class ElasticSearch {
     let schemaTxt = fs.readFileSync(path.join(__dirname, 'schema.json'));
     let mappings = JSON.parse(schemaTxt, 'utf-8');
 
+    let synonymTxt = fs.readFileSync(path.join(__dirname, 'synonym.txt'), 'utf-8');
+    let synonyms = synonymTxt.split('\n')
+      .map(line => line.trim())
+      .filter(line => !line.match(/^#/))
+      .filter(line => line !== '');
+
     try {
       await this.client.indices.create({
         index: newIndexName,
@@ -174,18 +198,18 @@ class ElasticSearch {
               analyzer: {
                 defaultAnalyzer: { 
                   tokenizer: 'standard',
-                  filter: ["lowercase", "stop", "asciifolding"]
+                  filter: ["lowercase", "stop", "synonym", "asciifolding"]
                 },
 
                 trigram: {
                   type: "custom",
                   tokenizer: "standard",
-                  filter: ["lowercase","stop", "asciifolding","shingle"]
+                  filter: ["lowercase","stop","synonym", "asciifolding","shingle"]
                 },
                 reverse: {
                   type: "custom",
                   tokenizer: "standard",
-                  filter: ["lowercase","stop", "asciifolding","reverse"]
+                  filter: ["lowercase","stop","synonym", "asciifolding","reverse"]
                 }
               },
               filter: {
@@ -193,6 +217,10 @@ class ElasticSearch {
                   type: "shingle",
                   min_shingle_size: 2,
                   max_shingle_size: 3
+                },
+                synonym: {
+                  type : "synonym",
+                  synonyms
                 }
               }
             }
@@ -203,6 +231,8 @@ class ElasticSearch {
     } catch(e) {
       throw e;
     }
+
+    logger.info(`Index ${newIndexName} created`);
 
     return newIndexName;
   }
