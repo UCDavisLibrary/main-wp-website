@@ -8,7 +8,7 @@ import config from '../config.js';
 class WPHarvest {
 
   constructor() {
-    this.POST_TYPES = ['post', 'page', 'book'];
+    this.POST_TYPES = config.wordpress.types;
   }
 
   startInterval() {
