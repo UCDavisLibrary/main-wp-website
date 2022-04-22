@@ -1,0 +1,17 @@
+un paywall, unpaywall
+ca, california
+ucd, uc davis, university california davis
+oa, open access
+oac, Online Archive California
+oap, open access policy
+coe, college engineering
+cdl, california digital library
+pub med, pubmed
+sherry lehmann, sherry-Lehmann
+oed, oxford english dictionary
+nsf, national science foundation
+ill, interlibrary loan
+vet med, veterinary medicine
+world cat, worldcat
+uc library search, library catalog
+lib, library

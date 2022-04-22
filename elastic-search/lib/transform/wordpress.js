@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import striptags from 'striptags';
 import { parse } from '@wordpress/block-serialization-default-parser';
 import htmlEntities from 'html-entities';
+import { JSDOM } from 'jsdom';
 
 function transformRecord(post) {
   let record = {
@@ -20,6 +21,14 @@ function transformRecord(post) {
     if( term.taxonomy === 'tag' ) record.tags.push(htmlEntities.decode(term.name));
     if( term.taxonomy === 'category' ) record.subjects.push(htmlEntities.decode(term.name));
   }
+  
+  // strip all style and post tags
+  const dom = new JSDOM(post.post_content);
+  ['script', 'style'].forEach(tag => {
+    Array.from(dom.window.document.querySelectorAll(tag))
+      .forEach(ele => {console.log(ele); ele.remove()});
+  });
+  post.post_content = dom.window.document.body.innerHTML;
 
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
