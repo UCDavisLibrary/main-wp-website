@@ -2,7 +2,7 @@ un paywall, unpaywall
 ca, california
 ucd, uc davis, university california davis
 oa, open access
-oac, Online Archive California
+oac, online archive california
 oap, open access policy
 coe, college engineering
 cdl, california digital library
@@ -15,3 +15,7 @@ vet med, veterinary medicine
 world cat, worldcat
 uc library search, library catalog
 lib, library
+ils, sils, integrated library system, systemwide integrated library system
+ag, agriculture
+libguide, library guide
+wos,web of science
