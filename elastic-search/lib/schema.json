@@ -9,17 +9,47 @@
 
     "title" : {
       "type" : "text",
-      "analyzer": "defaultAnalyzer"
+      "analyzer": "defaultAnalyzer",
+      "fields": {
+        "trigram": {
+          "type": "text",
+          "analyzer": "trigram"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "reverse"
+        }
+      }
     },
 
     "description" : {
       "type" : "text",
-      "analyzer": "defaultAnalyzer"
+      "analyzer": "defaultAnalyzer",
+      "fields": {
+        "trigram": {
+          "type": "text",
+          "analyzer": "trigram"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "reverse"
+        }
+      }
     },
 
     "content" : {
       "type" : "text",
-      "analyzer": "defaultAnalyzer"
+      "analyzer": "defaultAnalyzer",
+      "fields": {
+        "trigram": {
+          "type": "text",
+          "analyzer": "trigram"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "reverse"
+        }
+      }
     },
 
     "subjects" : {

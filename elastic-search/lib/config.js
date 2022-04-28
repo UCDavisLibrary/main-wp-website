@@ -10,6 +10,11 @@ if( env.GOOGLE_APPLICATION_CREDENTIALS ) {
   env.GOOGLE_PROJECT_ID = gcProjectId;
 }
 
+let WP_TYPES = env.WORDPRESS_POST_TYPES;
+if( WP_TYPES ) {
+  WP_TYPES = WP_TYPES.split(',').map(item => item.toLowerCase().trim())
+}
+
 const config = {
 
   service : {
@@ -19,6 +24,10 @@ const config = {
   libguides : {
     harvestSchedule : env.LIBGUIDES_CRON || '0 5 * * *',
     staleTime : env.LIBGUIDES_STALE_TIME || 1000 * 60 * 60 * 24 * 2 // 2 days
+  },
+
+  wordpress : {
+    types : WP_TYPES || ['post', 'page', 'location']
   },
 
   instance : {
