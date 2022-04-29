@@ -151,6 +151,15 @@ WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"
 RUN cd public && npm run dist
 RUN cd editor && npm run dist
 
+# clean up, because this stupid image copies everything we leave around
+RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
+RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+
 # set build tags
 ARG WEBSITE_TAG
 ENV WEBSITE_TAG ${WEBSITE_TAG}
