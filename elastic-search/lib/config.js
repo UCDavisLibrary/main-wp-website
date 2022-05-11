@@ -42,7 +42,8 @@ const config = {
 
   storage : {
     bucket : env.GOOGLE_CLOUD_BUCKET || 'libguides-indexer-main',
-    indexFile : 'index.json'
+    indexFile : 'index.json',
+    databaseFile : 'databases.json'
   },
 
   logging : {

@@ -10,7 +10,8 @@ function transformRecord(libguideSource, libguide, parentRecord) {
       source : libguideSource
     }
     record.type = 'libguide';
-    record.title = libguide.dublinCore?.title;
+    // set title and remove libguides appended ': Home'
+    record.title = (libguide.dublinCore?.title || '').trim().replace(/: Home$/i, '') ;
     record.description = libguide.dublinCore?.description;
   } else {
     if( !record.children ) record.children = [];
