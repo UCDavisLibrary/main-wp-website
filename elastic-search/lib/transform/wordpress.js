@@ -26,7 +26,7 @@ function transformRecord(post) {
   const dom = new JSDOM(post.post_content);
   ['script', 'style'].forEach(tag => {
     Array.from(dom.window.document.querySelectorAll(tag))
-      .forEach(ele => {console.log(ele); ele.remove()});
+      .forEach(ele => ele.remove());
   });
   post.post_content = dom.window.document.body.innerHTML;
 

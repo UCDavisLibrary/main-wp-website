@@ -122,7 +122,6 @@ class GCSHarvest {
 
   async validUrl(url) {
     let resp = await fetch(url.href, {method: 'HEAD'});
-    console.log(url.href, resp.status);
     if( resp.status >= 200 && resp.status <= 299 ) {
       return true;
     }

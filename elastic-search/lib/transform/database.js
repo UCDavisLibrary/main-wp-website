@@ -9,6 +9,21 @@ function transformDatabase(database) {
     database.title = database.name;
   }
 
+  if( database.subjects ) {
+    database.tags = database.subjects
+      .map(item => item.name);
+    delete database.subjects;
+  }
+
+  if( database.alt_names !== undefined ) {
+    if( database.alt_names ) {
+      database.altTitles = database.alt_names
+        .split(',').map(title => title.trim());
+    }
+
+    delete database.alt_names;
+  }
+
   if( database.name ) {
     delete database.name;
   }

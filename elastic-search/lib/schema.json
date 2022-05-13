@@ -22,6 +22,21 @@
       }
     },
 
+    "altTitles" : {
+      "type" : "text",
+      "analyzer": "defaultAnalyzer",
+      "fields": {
+        "trigram": {
+          "type": "text",
+          "analyzer": "trigram"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "reverse"
+        }
+      }
+    },
+
     "description" : {
       "type" : "text",
       "analyzer": "defaultAnalyzer",
