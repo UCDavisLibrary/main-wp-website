@@ -2,9 +2,11 @@ import metrics from '../metrics.js';
 import storage from '../storage.js';
 import config from '../config.js';
 import libguideTransform from '../transform/libguide.js';
+import databaseTransform from '../transform/database.js';
 import elasticSearch from '../elastic-search.js';
 import logger from '../logger.js';
 import {CronJob} from 'cron';
+import fetch from 'node-fetch';
 
 class GCSHarvest {
 
@@ -70,15 +72,70 @@ class GCSHarvest {
         this.recordStatus(indexedData, 'error', url, e);
       }
     }
+
+    let databases = await storage.jsonDownload(config.storage.databaseFile);
+    databases = databases.data;
+
+    for( let database of databases ) {
+      database = databaseTransform(database);
+
+      // check md5
+      try {
+        let resp = await elasticSearch.get(database.id);
+        if( resp._source.md5 === database.md5 ) {
+          this.recordStatus(database, 'ignored-no-update', database.link, null, 'database');
+          continue;
+        }
+      } catch(e) {}
+
+      // check db url
+      // JM - Here if we want it, but opens a can-o-worms
+      // try {
+      //   let url = new URL(database.link);
+      //   let protocol = url.protocol;
+      //   if( protocol === 'http:' ) url.protocol = 'https:';
+
+      //   let valid = await this.validUrl(url);
+      //   if( !valid && protocol === 'http:' ) {
+      //     url.protocol = 'http:';
+      //     valid = await this.validUrl(url);
+      //   }
+
+      //   if( !valid ) {
+      //     this.recordStatus(database, 'ignored-bad-url', database.link, null, 'database');
+      //     continue;
+      //   }
+
+      // } catch(e) {
+      //   this.recordStatus(database, 'ignored-invalid-url', database.link, e.message, 'database');
+      //   continue;
+      // }
+
+      let resp = await elasticSearch.insert(database);
+      if( resp.result !== 'updated' && resp.result !== 'created' ) {
+        throw new Error('Unknown result from elasicsearch insert: '+resp.result);
+      }
+
+      this.recordStatus(database, 'success', database.link, null, 'database');
+    }
   }
 
-  recordStatus(indexedData, status, url, error) {
+  async validUrl(url) {
+    let resp = await fetch(url.href, {method: 'HEAD'});
+    if( resp.status >= 200 && resp.status <= 299 ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  recordStatus(indexedData, status, url, error, type) {
     metrics.log(
       config.metrics.definitions['page-index-status'].type,
       {
         status,
         source : indexedData.id,
-        type : 'libguide',
+        type : type || 'libguide',
       },
       1,
       url, 

@@ -136,6 +136,9 @@ class ElasticSearch {
 
   async setAlias(indexName) {
     let alias = config.elasticSearch.indexAlias;
+    try {
+      await this.client.indices.deleteAlias({index: indexName, name: alias});
+    } catch(e) {}
     await this.client.indices.putAlias({index: indexName, name: alias});
     logger.info(`Alias ${alias} pointed at index ${indexName}`);
   }
