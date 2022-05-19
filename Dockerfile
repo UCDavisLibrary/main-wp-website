@@ -121,6 +121,10 @@ RUN apt-get update && apt-get install -y nodejs unzip
 
 WORKDIR $SRC_ROOT
 
+# Apache config
+RUN a2enmod headers
+COPY .htaccess .htaccess
+
 # WP CLI for downloading third-party plugins, among other things
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
