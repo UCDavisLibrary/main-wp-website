@@ -25,7 +25,7 @@ app.get('/reindex', async (req, res) => {
   }
 
   await wp.reharvestAll();
-  await gcs.run();
+  await gcs.run({recordAge:false});
   reindexRunning = false;
 });
 

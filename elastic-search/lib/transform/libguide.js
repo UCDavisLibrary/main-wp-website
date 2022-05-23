@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import {setDates} from './utils.js';
 
 function transformRecord(libguideSource, libguide, parentRecord) {
   let record = parentRecord || {};
@@ -15,7 +16,14 @@ function transformRecord(libguideSource, libguide, parentRecord) {
       .replace(/: Home$/i, '')
       .replace(/^Research Guides:/i, '' )
       .trim();
-    record.description = libguide.dublinCore?.description;
+
+    if( libguide.dublinCore ) {
+      record.description = libguide.dublinCore.description;
+      record.created = libguide.dublinCore['date.created'];
+      record.modified = libguide.dublinCore['date.modified'];
+      setDates(record);
+    }
+
   } else {
     if( !record.children ) record.children = [];
     record.children.push(libguide.url);

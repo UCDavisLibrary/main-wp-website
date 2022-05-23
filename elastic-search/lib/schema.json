@@ -89,6 +89,10 @@
 
     "updated" : {
       "type" : "date"
+    },
+
+    "sortByDate" : {
+      "type" : "date"
     }
     
   }
