@@ -102,6 +102,20 @@ COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.ph
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
 
+FROM node:${NODE_VERSION} as ucdlib-search
+RUN mkdir -p /plugin/ucdlib-search/src/public
+WORKDIR /plugin/ucdlib-search/src/public
+COPY ucdlib-wp-plugins/ucdlib-search/src/public/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-search
+#COPY ucdlib-wp-plugins/ucdlib-search/acf-json acf-json
+COPY ucdlib-wp-plugins/ucdlib-search/assets assets
+COPY ucdlib-wp-plugins/ucdlib-search/includes includes
+COPY ucdlib-wp-plugins/ucdlib-search/src/public/index.js src/public/index.js
+COPY ucdlib-wp-plugins/ucdlib-search/src/public/lib src/public/lib
+COPY ucdlib-wp-plugins/ucdlib-search/views views
+
 FROM wordpress:5.9.0
 
 ARG SRC_ROOT
@@ -243,9 +257,9 @@ COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
 COPY --from=ucdlib-locations /plugin/ucdlib-locations ucdlib-locations
 COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
 COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
+COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
 
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
-COPY ucdlib-wp-plugins/ucdlib-search ucdlib-search
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
