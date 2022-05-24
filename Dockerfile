@@ -109,7 +109,7 @@ COPY ucdlib-wp-plugins/ucdlib-search/src/public/package.json package.json
 RUN npm install --only=prod
 
 WORKDIR /plugin/ucdlib-search
-COPY ucdlib-wp-plugins/ucdlib-search/acf-json acf-json
+#COPY ucdlib-wp-plugins/ucdlib-search/acf-json acf-json
 COPY ucdlib-wp-plugins/ucdlib-search/assets assets
 COPY ucdlib-wp-plugins/ucdlib-search/includes includes
 COPY ucdlib-wp-plugins/ucdlib-search/src/public/index.js src/public/index.js
