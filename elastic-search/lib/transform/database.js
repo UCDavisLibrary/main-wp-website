@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import {setDates} from './utils.js';
 
 function transformDatabase(database) {
   database.id = 'database-'+database.id;
@@ -30,6 +31,8 @@ function transformDatabase(database) {
   if( database.url ) {
     delete database.url;
   }
+
+  setDates(database);
 
   database.md5 = crypto.createHash('md5').update(JSON.stringify(database)).digest('hex')
 

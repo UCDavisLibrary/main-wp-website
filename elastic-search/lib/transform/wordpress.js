@@ -3,6 +3,7 @@ import striptags from 'striptags';
 import { parse } from '@wordpress/block-serialization-default-parser';
 import htmlEntities from 'html-entities';
 import { JSDOM } from 'jsdom';
+import {setDates} from './utils.js';
 
 function transformRecord(post) {
   let record = {
@@ -10,11 +11,15 @@ function transformRecord(post) {
     title : post.post_title,
     type : post.post_type,
     description : post.post_name,
+    created : post.post_date_gmt,
+    modified : post.post_modified_gmt,
     content : '',
     blocks : {},
     subjects : [],
     tags : []
   };
+
+  setDates(record);
 
   // set categories (we call them subjects) and tags
   for( let term of post.terms ) {
@@ -58,6 +63,19 @@ function parseBlocks(record, blocks) {
     }
     record.blocks[blockName].push(block.attrs);
   }
+}
+
+/**
+ * @method fixDate
+ * @description dublin core dates seem to be set like: Aug 6, 2013.
+ * We need to fix.
+ * 
+ * @param {String} date 
+ * @returns {String}
+ */
+ function fixDate(date) {
+  if( !date ) return date;
+  return new Date(date).toISOString();
 }
 
 export default transformRecord;

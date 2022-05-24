@@ -23,9 +23,13 @@ class GCSHarvest {
     await elasticSearch.ensureIndex();
   }
 
-  async run() {
+  async run(opts={}) {
     let indexedData = await storage.jsonDownload(config.storage.indexFile);
-    this.recordAge(indexedData.data, indexedData.metadata.updated, indexedData.data.id);
+
+    if( opts.recordAge !== false ) {
+      this.recordAge(indexedData.data, indexedData.metadata.updated, indexedData.data.id);
+    }
+
     indexedData = indexedData.data;
 
     let record;
