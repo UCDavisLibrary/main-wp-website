@@ -4,8 +4,13 @@ const env = process.env;
 
 // GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_PROJECT_ID are required for
 // opencensus authentication
-let gcProjectId = '';
-if( env.GOOGLE_APPLICATION_CREDENTIALS ) {
+let gcProjectId = '', keyfile = '';
+if( 
+  env.GOOGLE_APPLICATION_CREDENTIALS 
+  && fs.existsSync(env.GOOGLE_APPLICATION_CREDENTIALS)
+  && !fs.statSync(env.GOOGLE_APPLICATION_CREDENTIALS).isDirectory()
+) {
+  keyfile = env.GOOGLE_APPLICATION_CREDENTIALS;
   gcProjectId = JSON.parse(fs.readFileSync(env.GOOGLE_APPLICATION_CREDENTIALS, 'utf-8')).project_id;
   env.GOOGLE_PROJECT_ID = gcProjectId;
 }
@@ -36,7 +41,7 @@ const config = {
   },
 
   google : {
-    keyfile : env.GOOGLE_APPLICATION_CREDENTIALS,
+    keyfile,
     projectId : gcProjectId,
   },
 
