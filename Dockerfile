@@ -3,6 +3,9 @@ ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
 ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
+ARG PLUGIN_ACF="advanced-custom-fields-pro-5.11.4.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -11,10 +14,14 @@ FROM google/cloud-sdk:alpine as gcloud
 WORKDIR /
 ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
+ARG PLUGIN_ACF
+ARG PLUGIN_REDIRECTION
+ARG PLUGIN_WPMUDEV_UPDATES
 
-RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- \
-  && gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro.zip . \
-  && gsutil cp gs://${BUCKET_NAME}/plugins/redirection.zip .
+RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- 
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -126,6 +133,9 @@ ENV THEME_ROOT=${THEME_ROOT}
 ARG PLUGIN_ROOT
 ENV PLUGIN_ROOT=${PLUGIN_ROOT}
 ARG NODE_VERSION
+ARG PLUGIN_ACF
+ARG PLUGIN_REDIRECTION
+ARG PLUGIN_WPMUDEV_UPDATES
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -157,13 +167,17 @@ RUN composer install
 
 # place third-party plugins
 WORKDIR $PLUGIN_ROOT
-COPY --from=gcloud /advanced-custom-fields-pro.zip .
-RUN unzip advanced-custom-fields-pro.zip
-RUN rm advanced-custom-fields-pro.zip
+COPY --from=gcloud /${PLUGIN_ACF} .
+RUN unzip ${PLUGIN_ACF}
+RUN rm ${PLUGIN_ACF}
 
-COPY --from=gcloud /redirection.zip .
-RUN unzip redirection.zip
-RUN rm redirection.zip
+COPY --from=gcloud /${PLUGIN_REDIRECTION} .
+RUN unzip ${PLUGIN_REDIRECTION}
+RUN rm ${PLUGIN_REDIRECTION}
+
+COPY --from=gcloud /${PLUGIN_WPMUDEV_UPDATES} .
+RUN unzip ${PLUGIN_WPMUDEV_UPDATES}
+RUN rm ${PLUGIN_WPMUDEV_UPDATES}
 
 # copy our plugins
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
