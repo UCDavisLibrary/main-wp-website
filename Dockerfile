@@ -3,9 +3,10 @@ ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
 ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-5.11.4.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -178,6 +179,10 @@ RUN rm ${PLUGIN_REDIRECTION}
 COPY --from=gcloud /${PLUGIN_WPMUDEV_UPDATES} .
 RUN unzip ${PLUGIN_WPMUDEV_UPDATES}
 RUN rm ${PLUGIN_WPMUDEV_UPDATES}
+
+COPY --from=gcloud /${PLUGIN_FORMINATOR} .
+RUN unzip ${PLUGIN_FORMINATOR}
+RUN rm ${PLUGIN_FORMINATOR}
 
 # copy our plugins
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
