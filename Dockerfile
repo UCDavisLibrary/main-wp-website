@@ -7,6 +7,7 @@ ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -18,11 +19,15 @@ ARG BUCKET_NAME
 ARG PLUGIN_ACF
 ARG PLUGIN_REDIRECTION
 ARG PLUGIN_WPMUDEV_UPDATES
+ARG PLUGIN_FORMINATOR
+ARG PLUGIN_USER_ROLE_EDITOR
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- 
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -45,6 +50,7 @@ COPY ucdlib-theme-wp/src/editor/lib src/editor/lib
 COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
 COPY ucdlib-theme-wp/src/public/lib src/public/lib
+COPY ucdlib-theme-wp/src/public/elements src/public/elements
 
 FROM node:${NODE_VERSION} as ucdlib-assets
 
@@ -137,6 +143,8 @@ ARG NODE_VERSION
 ARG PLUGIN_ACF
 ARG PLUGIN_REDIRECTION
 ARG PLUGIN_WPMUDEV_UPDATES
+ARG PLUGIN_FORMINATOR
+ARG PLUGIN_USER_ROLE_EDITOR
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -183,6 +191,10 @@ RUN rm ${PLUGIN_WPMUDEV_UPDATES}
 COPY --from=gcloud /${PLUGIN_FORMINATOR} .
 RUN unzip ${PLUGIN_FORMINATOR}
 RUN rm ${PLUGIN_FORMINATOR}
+
+COPY --from=gcloud /${PLUGIN_USER_ROLE_EDITOR} .
+RUN unzip ${PLUGIN_USER_ROLE_EDITOR}
+RUN rm ${PLUGIN_USER_ROLE_EDITOR}
 
 # copy our plugins
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
