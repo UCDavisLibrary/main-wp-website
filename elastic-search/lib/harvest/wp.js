@@ -42,15 +42,15 @@ class WPHarvest {
 
     let resp = await mysql.query(`select ID from wp_posts where post_status = 'publish' and post_type IN (?)`, [this.POST_TYPES]);
     for( let post of resp.results ) {
-      await this.harvestPost(post.ID, true);
+      await this.harvestPost(post.ID, {recordAge: false});
     }
   }
 
-  async harvestPost(postId, reharvest=false) {
+  async harvestPost(postId, opts={}) {
     let post = {};
 
     try {
-      let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status, post_modified_gmt from wp_posts where ID=${postId}`);
+      let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status, post_date_gmt, post_modified_gmt from wp_posts where ID=${postId}`);
       
       // post doesn't exists
       // TODO: delete from elastic search
@@ -100,7 +100,7 @@ class WPHarvest {
       } catch(e) {}
 
       // record age of record about to be indexed, unless its a reharvest
-      if( reharvest !== true ) {
+      if( opts.recordAge !== false ) {
         this.recordAge(post);
       }
 
