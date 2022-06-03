@@ -80,6 +80,11 @@ WORKDIR /plugin/ucdlib-locations/src/public
 COPY ucdlib-wp-plugins/ucdlib-locations/src/public/package.json package.json
 RUN npm install --only=prod
 
+RUN mkdir -p /plugin/ucdlib-locations/src/editor
+WORKDIR /plugin/ucdlib-locations/src/editor
+COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/package-docker.json package.json
+RUN npm install --only=prod
+
 WORKDIR /plugin/ucdlib-locations
 COPY ucdlib-wp-plugins/ucdlib-locations/acf-json acf-json
 COPY ucdlib-wp-plugins/ucdlib-locations/includes includes
@@ -87,6 +92,8 @@ COPY ucdlib-wp-plugins/ucdlib-locations/views views
 COPY ucdlib-wp-plugins/ucdlib-locations/ucdlib-locations.php ucdlib-locations.php
 COPY ucdlib-wp-plugins/ucdlib-locations/src/public/index.js src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-locations/src/public/lib src/public/lib
+COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/index.js src/editor/index.js
+COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/lib src/editor/lib
 
 FROM node:${NODE_VERSION} as ucdlib-migration
 
