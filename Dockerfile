@@ -7,7 +7,7 @@ ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -21,6 +21,7 @@ ARG PLUGIN_REDIRECTION
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_FORMINATOR
 ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_SMTP_MAILER
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- 
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
@@ -28,6 +29,7 @@ RUN gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -152,6 +154,7 @@ ARG PLUGIN_REDIRECTION
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_FORMINATOR
 ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_SMTP_MAILER
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -202,6 +205,10 @@ RUN rm ${PLUGIN_FORMINATOR}
 COPY --from=gcloud /${PLUGIN_USER_ROLE_EDITOR} .
 RUN unzip ${PLUGIN_USER_ROLE_EDITOR}
 RUN rm ${PLUGIN_USER_ROLE_EDITOR}
+
+COPY --from=gcloud /${PLUGIN_SMTP_MAILER} .
+RUN unzip ${PLUGIN_SMTP_MAILER}
+RUN rm ${PLUGIN_SMTP_MAILER}
 
 # copy our plugins
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
