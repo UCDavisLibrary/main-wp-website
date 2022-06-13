@@ -4,11 +4,11 @@ ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
 ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -19,11 +19,11 @@ WORKDIR /cache
 ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
 ARG PLUGIN_ACF
-ARG PLUGIN_REDIRECTION
-ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_FORMINATOR
-ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
+ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_WPMUDEV_UPDATES
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
@@ -152,11 +152,11 @@ ARG PLUGIN_ROOT
 ENV PLUGIN_ROOT=${PLUGIN_ROOT}
 ARG NODE_VERSION
 ARG PLUGIN_ACF
-ARG PLUGIN_REDIRECTION
-ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_FORMINATOR
-ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
+ARG PLUGIN_USER_ROLE_EDITOR
+ARG PLUGIN_WPMUDEV_UPDATES
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
