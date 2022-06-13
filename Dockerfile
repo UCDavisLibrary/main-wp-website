@@ -13,7 +13,8 @@ ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
 # note, they still have to be activated
 # advanced custom fields (acf)
 FROM google/cloud-sdk:alpine as gcloud
-WORKDIR /
+RUN mkdir -p /cache
+WORKDIR /cache
 ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
 ARG PLUGIN_ACF
@@ -23,7 +24,7 @@ ARG PLUGIN_FORMINATOR
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_SMTP_MAILER
 
-RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=- 
+RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} .
@@ -186,27 +187,27 @@ RUN composer install
 
 # place third-party plugins
 WORKDIR $PLUGIN_ROOT
-COPY --from=gcloud /${PLUGIN_ACF} .
+COPY --from=gcloud /cache/${PLUGIN_ACF} .
 RUN unzip ${PLUGIN_ACF}
 RUN rm ${PLUGIN_ACF}
 
-COPY --from=gcloud /${PLUGIN_REDIRECTION} .
+COPY --from=gcloud /cache/${PLUGIN_REDIRECTION} .
 RUN unzip ${PLUGIN_REDIRECTION}
 RUN rm ${PLUGIN_REDIRECTION}
 
-COPY --from=gcloud /${PLUGIN_WPMUDEV_UPDATES} .
+COPY --from=gcloud /cache/${PLUGIN_WPMUDEV_UPDATES} .
 RUN unzip ${PLUGIN_WPMUDEV_UPDATES}
 RUN rm ${PLUGIN_WPMUDEV_UPDATES}
 
-COPY --from=gcloud /${PLUGIN_FORMINATOR} .
+COPY --from=gcloud /cache/${PLUGIN_FORMINATOR} .
 RUN unzip ${PLUGIN_FORMINATOR}
 RUN rm ${PLUGIN_FORMINATOR}
 
-COPY --from=gcloud /${PLUGIN_USER_ROLE_EDITOR} .
+COPY --from=gcloud /cache/${PLUGIN_USER_ROLE_EDITOR} .
 RUN unzip ${PLUGIN_USER_ROLE_EDITOR}
 RUN rm ${PLUGIN_USER_ROLE_EDITOR}
 
-COPY --from=gcloud /${PLUGIN_SMTP_MAILER} .
+COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 RUN unzip ${PLUGIN_SMTP_MAILER}
 RUN rm ${PLUGIN_SMTP_MAILER}
 
@@ -255,4 +256,4 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # WHY???
-CMD ["apache2-foreground"] 
+CMD ["apache2-foreground"]
