@@ -8,6 +8,7 @@ ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
