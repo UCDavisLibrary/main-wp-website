@@ -12,7 +12,6 @@ ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
-# advanced custom fields (acf)
 FROM google/cloud-sdk:alpine as gcloud
 RUN mkdir -p /cache
 WORKDIR /cache
@@ -60,12 +59,12 @@ FROM node:${NODE_VERSION} as ucdlib-assets
 
 RUN mkdir -p /plugin/ucdlib-assets/src/public
 WORKDIR /plugin/ucdlib-assets/src/public
-COPY ucdlib-wp-plugins/ucdlib-assets/src/public/package-docker.json package.json
+COPY ucdlib-wp-plugins/ucdlib-assets/src/public/package.json package.json
 RUN npm install
 
 RUN mkdir -p /plugin/ucdlib-assets/src/editor
 WORKDIR /plugin/ucdlib-assets/src/editor
-COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/package-docker.json package.json
+COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/package.json package.json
 RUN npm install
 
 WORKDIR /plugin/ucdlib-assets
@@ -73,7 +72,7 @@ COPY ucdlib-wp-plugins/ucdlib-assets/assets assets
 COPY ucdlib-wp-plugins/ucdlib-assets/includes includes
 COPY ucdlib-wp-plugins/ucdlib-assets/ucdlib-assets.php ucdlib-assets.php
 COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js src/editor/ucdlib-editor.js
-COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib src/editor/lib
+#COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib src/public/lib
 
@@ -86,7 +85,7 @@ RUN npm install --only=prod
 
 RUN mkdir -p /plugin/ucdlib-locations/src/editor
 WORKDIR /plugin/ucdlib-locations/src/editor
-COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/package-docker.json package.json
+COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/package.json package.json
 RUN npm install --only=prod
 
 WORKDIR /plugin/ucdlib-locations
@@ -103,7 +102,7 @@ FROM node:${NODE_VERSION} as ucdlib-migration
 
 RUN mkdir -p /plugin/ucdlib-migration/src/editor
 WORKDIR /plugin/ucdlib-migration/src/editor
-COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/package-docker.json package.json
+COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/package.json package.json
 RUN npm install --only=prod
 
 WORKDIR /plugin/ucdlib-migration
@@ -117,7 +116,7 @@ FROM node:${NODE_VERSION} as ucdlib-directory
 
 RUN mkdir -p /plugin/ucdlib-directory/src/editor
 WORKDIR /plugin/ucdlib-directory/src/editor
-COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/package-docker.json package.json
+COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/package.json package.json
 RUN npm install --only=prod
 
 WORKDIR /plugin/ucdlib-directory
@@ -212,17 +211,24 @@ COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 RUN unzip ${PLUGIN_SMTP_MAILER}
 RUN rm ${PLUGIN_SMTP_MAILER}
 
-# copy our plugins
-COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
-COPY --from=ucdlib-locations /plugin/ucdlib-locations ucdlib-locations
-COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
-COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
-COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
-
-COPY ucdlib-wp-plugins/ucd-cas ucd-cas
-
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
+RUN cd $THEME_ROOT/ucdlib-theme-wp/src/editor && npm link
+RUN cd $THEME_ROOT/ucdlib-theme-wp/src/public && npm link
+
+# copy our plugins
+COPY --from=ucdlib-locations /plugin/ucdlib-locations ucdlib-locations
+RUN cd ucdlib-locations/src/editor && npm link @ucd-lib/brand-theme-editor
+COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
+RUN cd ucdlib-migration/src/editor && npm link @ucd-lib/brand-theme-editor
+COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
+RUN cd ucdlib-directory/src/editor && npm link @ucd-lib/brand-theme-editor
+COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
+COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
+RUN cd ucdlib-assets/src/editor && npm link @ucd-lib/brand-theme-editor
+RUN cd ucdlib-assets/src/public && npm link @ucd-lib/brand-theme
+
+COPY ucdlib-wp-plugins/ucd-cas ucd-cas
 
 # build site static assets
 WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"
