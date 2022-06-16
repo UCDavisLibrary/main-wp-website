@@ -141,6 +141,29 @@ COPY ucdlib-wp-plugins/ucdlib-search/src/public/lib src/public/lib
 COPY ucdlib-wp-plugins/ucdlib-search/views views
 COPY ucdlib-wp-plugins/ucdlib-search/ucdlib-search.php ucdlib-search.php
 
+FROM node:${NODE_VERSION} as ucdlib-special
+
+RUN mkdir -p /plugin/ucdlib-special/src/public
+WORKDIR /plugin/ucdlib-special/src/public
+COPY ucdlib-wp-plugins/ucdlib-special/src/public/package.json package.json
+RUN npm install --only=prod
+
+RUN mkdir -p /plugin/ucdlib-special/src/editor
+WORKDIR /plugin/ucdlib-special/src/editor
+COPY ucdlib-wp-plugins/ucdlib-special/src/editor/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-special
+COPY ucdlib-wp-plugins/ucdlib-special/acf-json acf-json
+COPY ucdlib-wp-plugins/ucdlib-special/includes includes
+COPY ucdlib-wp-plugins/ucdlib-special/views views
+COPY ucdlib-wp-plugins/ucdlib-special/ucdlib-special.php ucdlib-special.php
+COPY ucdlib-wp-plugins/ucdlib-special/src/public/index.js src/public/index.js
+COPY ucdlib-wp-plugins/ucdlib-special/src/public/lib src/public/lib
+COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
+COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
+
+
 FROM wordpress:5.9.0
 
 ARG SRC_ROOT
@@ -223,6 +246,8 @@ COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
 RUN cd ucdlib-migration/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
 RUN cd ucdlib-directory/src/editor && npm link @ucd-lib/brand-theme-editor
+COPY --from=ucdlib-special /plugin/ucdlib-special ucdlib-special
+RUN cd ucdlib-special/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
 RUN cd ucdlib-assets/src/editor && npm link @ucd-lib/brand-theme-editor
@@ -241,9 +266,13 @@ RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
 RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
 
 # set build tags
 ARG WEBSITE_TAG
