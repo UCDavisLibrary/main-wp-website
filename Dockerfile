@@ -1,4 +1,5 @@
-ARG SRC_ROOT=/usr/src/wordpress
+ARG WP_SRC_ROOT=/usr/src/wordpress
+ARG SRC_ROOT=/usr/local/src/ucdlib
 ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
 ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
 ARG BUCKET_NAME=website-v3-content
@@ -168,6 +169,8 @@ FROM wordpress:5.9.0
 
 ARG SRC_ROOT
 ENV SRC_ROOT=${SRC_ROOT}
+ARG WP_SRC_ROOT
+ENV WP_SRC_ROOT=${WP_SRC_ROOT}
 ARG THEME_ROOT
 ENV THEME_ROOT=${THEME_ROOT}
 ARG PLUGIN_ROOT
@@ -187,11 +190,19 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
 RUN apt-get update && apt-get install -y nodejs unzip
 
-WORKDIR $SRC_ROOT
+WORKDIR $WP_SRC_ROOT
 
 # Apache config
 RUN a2enmod headers
 COPY .htaccess .htaccess
+
+# WP config
+COPY wp-config-docker.php wp-config-docker.php
+
+# Make WP read-only
+RUN set -eux; \
+	find /etc/apache2 -name '*.conf' -type f -exec sed -ri -e "s!/var/www/html!$PWD!g" -e "s!Directory /var/www/!Directory $PWD!g" '{}' +; \
+	cp -s wp-config-docker.php wp-config.php
 
 # WP CLI for downloading third-party plugins, among other things
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -199,9 +210,9 @@ RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
 # drop OOTB themes and plugins
-RUN cd wp-content/themes && rm -rf */
-RUN cd wp-content/plugins && rm -rf */
-RUN cd wp-content/plugins && rm -f hello.php
+# RUN cd wp-content/themes && rm -rf */
+# RUN cd wp-content/plugins && rm -rf */
+# RUN cd wp-content/plugins && rm -f hello.php
 
 # Install composer dependencies for theme and plugins
 ENV COMPOSER_ALLOW_SUPERUSER=1;
@@ -262,17 +273,17 @@ RUN cd editor && npm run dist
 
 # clean up, because this stupid image copies everything we leave around
 # however, it does make image smaller
-RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
-RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
+# RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
+# RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
+# RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
 
 # set build tags
 ARG WEBSITE_TAG
