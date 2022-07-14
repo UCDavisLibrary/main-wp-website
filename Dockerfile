@@ -1,6 +1,7 @@
-ARG SRC_ROOT=/usr/src/wordpress
-ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
-ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
+ARG WP_SRC_ROOT=/usr/src/wordpress
+ARG THEME_ROOT="$WP_SRC_ROOT/wp-content/themes"
+ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
+ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
 ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
@@ -166,8 +167,10 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 FROM wordpress:5.9.0
 
-ARG SRC_ROOT
-ENV SRC_ROOT=${SRC_ROOT}
+ARG WP_SRC_ROOT
+ENV WP_SRC_ROOT=${WP_SRC_ROOT}
+ARG WP_LOG_ROOT
+ENV WP_LOG_ROOT=${WP_LOG_ROOT}
 ARG THEME_ROOT
 ENV THEME_ROOT=${THEME_ROOT}
 ARG PLUGIN_ROOT
@@ -187,11 +190,19 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
 RUN apt-get update && apt-get install -y nodejs unzip
 
-WORKDIR $SRC_ROOT
+WORKDIR $WP_SRC_ROOT
 
 # Apache config
 RUN a2enmod headers
 COPY .htaccess .htaccess
+
+# WP config
+COPY wp-config-docker.php wp-config-docker.php
+
+# Switch apache to use wp src
+RUN set -eux; \
+	find /etc/apache2 -name '*.conf' -type f -exec sed -ri -e "s!/var/www/html!$PWD!g" -e "s!Directory /var/www/!Directory $PWD!g" '{}' +; \
+	cp -s wp-config-docker.php wp-config.php
 
 # WP CLI for downloading third-party plugins, among other things
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -285,7 +296,7 @@ ARG BUILD_TIME
 ENV BUILD_TIME ${BUILD_TIME}
 
 # Back to site root so wordpress can do the rest of its thing
-WORKDIR "/var/www/html"
+WORKDIR $WP_SRC_ROOT
 
 # override docker entry point
 COPY docker-entrypoint.sh /docker-entrypoint.sh
