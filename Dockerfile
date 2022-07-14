@@ -1,7 +1,7 @@
 ARG WP_SRC_ROOT=/usr/src/wordpress
-ARG SRC_ROOT=/usr/local/src/ucdlib
-ARG THEME_ROOT="$SRC_ROOT/wp-content/themes"
-ARG PLUGIN_ROOT="$SRC_ROOT/wp-content/plugins"
+ARG THEME_ROOT="$WP_SRC_ROOT/wp-content/themes"
+ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
+ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
 ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
@@ -167,10 +167,10 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 FROM wordpress:5.9.0
 
-ARG SRC_ROOT
-ENV SRC_ROOT=${SRC_ROOT}
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
+ARG WP_LOG_ROOT
+ENV WP_LOG_ROOT=${WP_LOG_ROOT}
 ARG THEME_ROOT
 ENV THEME_ROOT=${THEME_ROOT}
 ARG PLUGIN_ROOT
@@ -199,7 +199,7 @@ COPY .htaccess .htaccess
 # WP config
 COPY wp-config-docker.php wp-config-docker.php
 
-# Make WP read-only
+# Switch apache to use wp src
 RUN set -eux; \
 	find /etc/apache2 -name '*.conf' -type f -exec sed -ri -e "s!/var/www/html!$PWD!g" -e "s!Directory /var/www/!Directory $PWD!g" '{}' +; \
 	cp -s wp-config-docker.php wp-config.php
@@ -210,9 +210,9 @@ RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
 # drop OOTB themes and plugins
-# RUN cd wp-content/themes && rm -rf */
-# RUN cd wp-content/plugins && rm -rf */
-# RUN cd wp-content/plugins && rm -f hello.php
+RUN cd wp-content/themes && rm -rf */
+RUN cd wp-content/plugins && rm -rf */
+RUN cd wp-content/plugins && rm -f hello.php
 
 # Install composer dependencies for theme and plugins
 ENV COMPOSER_ALLOW_SUPERUSER=1;
@@ -273,17 +273,17 @@ RUN cd editor && npm run dist
 
 # clean up, because this stupid image copies everything we leave around
 # however, it does make image smaller
-# RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
-# RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
-# RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
+RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
+RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
 
 # set build tags
 ARG WEBSITE_TAG
@@ -296,7 +296,7 @@ ARG BUILD_TIME
 ENV BUILD_TIME ${BUILD_TIME}
 
 # Back to site root so wordpress can do the rest of its thing
-WORKDIR "/var/www/html"
+WORKDIR $WP_SRC_ROOT
 
 # override docker entry point
 COPY docker-entrypoint.sh /docker-entrypoint.sh

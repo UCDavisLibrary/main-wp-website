@@ -21,10 +21,9 @@
       "jasig/phpcas" : "^1.4.0",
       "elasticsearch/elasticsearch": "~7.0"
     },
-  "config": {
-    "allow-plugins": {
-      "composer/installers":true
+    "config": {
+      "allow-plugins": {
+        "composer/installers":true
       }
     }
-  }
 }

@@ -98,10 +98,10 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
-
-// custom location for uploads, theme, and plugins
-define( 'WP_CONTENT_DIR', '/usr/local/src/ucdlib/wp-content' );
+// define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
+define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', true) );
+define( 'WP_DEBUG_DISPLAY', !!getenv_docker('WORDPRESS_DEBUG_DISPLAY', '') );
+define( 'WP_DEBUG_LOG', getenv_docker('WORDPRESS_DEBUG_LOG', '/var/log/wordpress/debug.log') );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
