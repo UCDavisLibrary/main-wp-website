@@ -55,6 +55,7 @@ COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
 COPY ucdlib-theme-wp/src/public/lib src/public/lib
 COPY ucdlib-theme-wp/src/public/elements src/public/elements
+COPY ucdlib-theme-wp/src/public/page-scripts src/public/page-scripts
 
 FROM node:${NODE_VERSION} as ucdlib-assets
 
