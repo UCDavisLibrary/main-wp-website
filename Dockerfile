@@ -132,7 +132,7 @@ COPY ucdlib-wp-plugins/ucdlib-directory/views views
 COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.php
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
-COPY ucdlib-wp-plugins/ucdlib-directory/src/public/lib src/public/src
+COPY ucdlib-wp-plugins/ucdlib-directory/src/public/src src/public/src
 
 FROM node:${NODE_VERSION} as ucdlib-search
 RUN mkdir -p /plugin/ucdlib-search/src/public
