@@ -92,29 +92,6 @@ class GCSHarvest {
         }
       } catch(e) {}
 
-      // check db url
-      // JM - Here if we want it, but opens a can-o-worms
-      // try {
-      //   let url = new URL(database.link);
-      //   let protocol = url.protocol;
-      //   if( protocol === 'http:' ) url.protocol = 'https:';
-
-      //   let valid = await this.validUrl(url);
-      //   if( !valid && protocol === 'http:' ) {
-      //     url.protocol = 'http:';
-      //     valid = await this.validUrl(url);
-      //   }
-
-      //   if( !valid ) {
-      //     this.recordStatus(database, 'ignored-bad-url', database.link, null, 'database');
-      //     continue;
-      //   }
-
-      // } catch(e) {
-      //   this.recordStatus(database, 'ignored-invalid-url', database.link, e.message, 'database');
-      //   continue;
-      // }
-
       let resp = await elasticSearch.insert(database);
       if( resp.result !== 'updated' && resp.result !== 'created' ) {
         throw new Error('Unknown result from elasicsearch insert: '+resp.result);
@@ -122,6 +99,71 @@ class GCSHarvest {
 
       this.recordStatus(database, 'success', database.link, null, 'database');
     }
+
+    // now check to remove old libguides
+    let results = await elasticSearch.search({
+      size: 9999,
+      query: {
+        term: {
+          type : "libguide"
+        }
+      }
+    });
+
+    results = results.hits.hits;
+    for( let result of results ) {
+      let exists = this.libguideExists(indexedData.urls, result);
+      if( !exists ) {
+        await elasticSearch.client.delete({
+          index : config.elasticSearch.indexAlias,
+          id : result._id
+        })
+      }
+    }
+
+    // now check to remove old databases
+    results = await elasticSearch.search({
+      size: 9999,
+      query: {
+        term: {
+          type : "database"
+        }
+      }
+    });
+    results = results.hits.hits;
+
+    for( let result of results ) {
+      let exists = this.databaseExists(databases, result);
+      if( !exists ) {
+        await elasticSearch.client.delete({
+          index : config.elasticSearch.indexAlias,
+          id : result._id
+        })
+      }
+    }
+
+  }
+
+  async remove(id) {
+    try { 
+      logger.info(`${id} no longer exists, removing`);
+      await elasticSearch.client.delete({
+        index : config.elasticSearch.indexAlias,
+        id : id
+      });
+      this.recordStatus({id}, 'deleted', id);
+    } catch(e) {
+      this.recordStatus({id}, 'error', id, e);
+      logger.error(`Failed to remove ${id}`);
+    }
+  }
+
+  databaseExists(databases, item) {
+    return databases.find(db => db.id === item._id) ? true : false;
+  }
+
+  libguideExists(libguides, item) {
+    return libguides.find(url => url.url === item._id) ? true : false;
   }
 
   async validUrl(url) {

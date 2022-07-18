@@ -49,13 +49,20 @@ class MySQL {
     let q = `SELECT count(*) as count
       FROM information_schema.TABLES 
       WHERE (TABLE_SCHEMA = '${config.mysql.database}') AND (TABLE_NAME = 'ucdlib_post_updates_log')`;
+
+    let tq = `SELECT count(*) as count
+      FROM information_schema.TRIGGERS 
+      WHERE (EVENT_OBJECT_SCHEMA = 'wordpress') AND (TRIGGER_NAME = 'ucdlib_wp_posts_insert_log_trigger' OR TRIGGER_NAME = 'ucdlib_wp_posts_update_log_trigger')`;
+    
     
     let resp = await this.query(q);
-    if( resp.results.length && resp.results[0].count > 0 ) {
+    let tresp = await this.query(tq);
+    if( resp.results.length && resp.results[0].count > 0 &&
+      tresp.results.length && tresp.results[0].count > 1 ) {
       return;
     }
 
-    logger.info('Adding indexer sql schema to database');
+    logger.info('Ensuring indexer sql schema in database');
     let schema = fs.readFileSync(path.join(__dirname, 'sql', 'post-updates-log.sql'), 'utf-8');
 
     await this.query(schema);
