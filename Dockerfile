@@ -133,6 +133,7 @@ COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.ph
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-directory/src/public/src src/public/src
+COPY ucdlib-wp-plugins/ucdlib-directory/src/public/index.js src/public/index.js
 
 FROM node:${NODE_VERSION} as ucdlib-search
 RUN mkdir -p /plugin/ucdlib-search/src/public
@@ -285,6 +286,7 @@ RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
