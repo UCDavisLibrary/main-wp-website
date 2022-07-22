@@ -55,6 +55,7 @@ COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
 COPY ucdlib-theme-wp/src/public/scss src/public/scss
 COPY ucdlib-theme-wp/src/public/lib src/public/lib
 COPY ucdlib-theme-wp/src/public/elements src/public/elements
+COPY ucdlib-theme-wp/src/public/page-scripts src/public/page-scripts
 
 FROM node:${NODE_VERSION} as ucdlib-assets
 
@@ -120,12 +121,19 @@ WORKDIR /plugin/ucdlib-directory/src/editor
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/package.json package.json
 RUN npm install --only=prod
 
+RUN mkdir -p /plugin/ucdlib-directory/src/public
+WORKDIR /plugin/ucdlib-directory/src/public
+COPY ucdlib-wp-plugins/ucdlib-directory/src/public/package.json package.json
+RUN npm install --only=prod
+
 WORKDIR /plugin/ucdlib-directory
 COPY ucdlib-wp-plugins/ucdlib-directory/includes includes
 COPY ucdlib-wp-plugins/ucdlib-directory/views views
 COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.php
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
+COPY ucdlib-wp-plugins/ucdlib-directory/src/public/src src/public/src
+COPY ucdlib-wp-plugins/ucdlib-directory/src/public/index.js src/public/index.js
 
 FROM node:${NODE_VERSION} as ucdlib-search
 RUN mkdir -p /plugin/ucdlib-search/src/public
@@ -278,6 +286,7 @@ RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
+RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
 RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules

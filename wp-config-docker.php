@@ -99,8 +99,11 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
 // define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
+
+// by default errors are logged, but not printed
 define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', true) );
 define( 'WP_DEBUG_DISPLAY', !!getenv_docker('WORDPRESS_DEBUG_DISPLAY', '') );
+define( 'WP_DISABLE_FATAL_ERROR_HANDLER', !!getenv_docker('WORDPRESS_DISABLE_FATAL_ERROR_HANDLER', '') );
 define( 'WP_DEBUG_LOG', getenv_docker('WORDPRESS_DEBUG_LOG', '/var/log/wordpress/debug.log') );
 
 /* Add any custom values between this line and the "stop editing" line. */
@@ -111,6 +114,12 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($_SERVER['HTTP_X_FORWARD
 	$_SERVER['HTTPS'] = 'on';
 }
 // (we include this by default because reverse proxying is extremely common in container environments)
+
+// prevent changes to image files
+// all updates and changes should be part of image update...
+define( 'DISALLOW_FILE_MODS', true );
+define( 'DISALLOW_FILE_EDIT', true );
+define( 'WP_AUTO_UPDATE_CORE', false );
 
 if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 	eval($configExtra);

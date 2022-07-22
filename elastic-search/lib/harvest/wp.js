@@ -9,6 +9,7 @@ class WPHarvest {
 
   constructor() {
     this.POST_TYPES = config.wordpress.types;
+    logger.info('Wordpress indexer will index posts of types: '+this.POST_TYPES.join(', '));
   }
 
   startInterval() {
@@ -40,6 +41,19 @@ class WPHarvest {
   async reharvestAll() {
     await this.init();
 
+    // run elastic search delete by type
+    let result = await elasticSearch.client.deleteByQuery({
+      index : config.elasticSearch.indexAlias,
+      body : {
+        query: {
+          bool : {
+            should : this.POST_TYPES.map(type => ({term: {type}}))
+          }
+        }
+      }
+    });
+    logger.info(`Scrubbed ${result.deleted} posts from elastic search of types: ${this.POST_TYPES.join(', ')}`);
+
     let resp = await mysql.query(`select ID from wp_posts where post_status = 'publish' and post_type IN (?)`, [this.POST_TYPES]);
     for( let post of resp.results ) {
       await this.harvestPost(post.ID, {recordAge: false});
@@ -55,7 +69,7 @@ class WPHarvest {
       // post doesn't exists
       // TODO: delete from elastic search
       if( qResp.results.length === 0 ) {
-        logger.warn('Still need to wire up elastic search delete for removed wp_post');
+        await this.deletePostFromEs(postId);
         this.recordStatus('unknown', 'ignored-deleted', postId);
         return;
       }
@@ -63,12 +77,14 @@ class WPHarvest {
       // check this is a post type we are interested in harvesting
       post = qResp.results[0];
       if( !this.POST_TYPES.includes(post.post_type)  ) {
+        await this.deletePostFromEs(postId);
         this.recordStatus(post.post_type, 'ignored-type', postId);
         return;
       }
 
       // check this post is actually published
       if( post.post_status !== 'publish' ) {
+        await this.deletePostFromEs(postId);
         this.recordStatus(post.post_type, 'ignored-unpublished', postId);
         return;
       }
@@ -114,6 +130,24 @@ class WPHarvest {
       this.recordStatus(post.post_type, 'success', postId);
     } catch(e) {
       this.recordStatus(post.post_type || 'unknown', 'error', postId, e);
+    }
+  }
+
+  async deletePostFromEs(id) {
+    try {
+      let exists = await elasticSearch.client.exists({
+        index : config.elasticSearch.indexAlias,
+        id : id
+      });
+      if( !exists ) return;
+
+      logger.info('Removing post from elastic search: '+id); 
+      await elasticSearch.client.delete({
+        index : config.elasticSearch.indexAlias,
+        id : id
+      });
+    } catch(e) {
+      logger.error('Failed to remove post from elastic search: '+id, e);    
     }
   }
 
