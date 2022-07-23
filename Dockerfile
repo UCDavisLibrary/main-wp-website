@@ -127,6 +127,7 @@ COPY ucdlib-wp-plugins/ucdlib-directory/src/public/package.json package.json
 RUN npm install --only=prod
 
 WORKDIR /plugin/ucdlib-directory
+COPY ucdlib-wp-plugins/ucdlib-directory/acf-json acf-json
 COPY ucdlib-wp-plugins/ucdlib-directory/includes includes
 COPY ucdlib-wp-plugins/ucdlib-directory/views views
 COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.php
