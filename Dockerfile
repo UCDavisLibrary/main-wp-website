@@ -169,7 +169,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/includes includes
 COPY ucdlib-wp-plugins/ucdlib-special/views views
 COPY ucdlib-wp-plugins/ucdlib-special/ucdlib-special.php ucdlib-special.php
 COPY ucdlib-wp-plugins/ucdlib-special/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-special/src/public/lib src/public/lib
+COPY ucdlib-wp-plugins/ucdlib-special/src/public/src src/public/src
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
