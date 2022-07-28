@@ -169,7 +169,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/includes includes
 COPY ucdlib-wp-plugins/ucdlib-special/views views
 COPY ucdlib-wp-plugins/ucdlib-special/ucdlib-special.php ucdlib-special.php
 COPY ucdlib-wp-plugins/ucdlib-special/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-special/src/public/lib src/public/lib
+COPY ucdlib-wp-plugins/ucdlib-special/src/public/src src/public/src
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
@@ -203,7 +203,12 @@ WORKDIR $WP_SRC_ROOT
 
 # Apache config
 RUN a2enmod headers
+RUN a2enmod status
+RUN a2enmod access_compat
 COPY .htaccess .htaccess
+COPY monitoring/status.conf /etc/apache2/conf-available/status.conf
+COPY monitoring/ports.conf /etc/apache2/ports.conf
+RUN cd /etc/apache2/conf-enabled && ln -s ../conf-available/status.conf
 
 # WP config
 COPY wp-config-docker.php wp-config-docker.php
