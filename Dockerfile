@@ -203,7 +203,12 @@ WORKDIR $WP_SRC_ROOT
 
 # Apache config
 RUN a2enmod headers
+RUN a2enmod status
+RUN a2enmod access_compat
 COPY .htaccess .htaccess
+COPY monitoring/status.conf /etc/apache2/conf-available/status.conf
+COPY monitoring/ports.conf /etc/apache2/ports.conf
+RUN cd /etc/apache2/conf-enabled && ln -s ../conf-available/status.conf
 
 # WP config
 COPY wp-config-docker.php wp-config-docker.php
