@@ -71,10 +71,10 @@ RUN npm install
 
 WORKDIR /plugin/ucdlib-assets
 COPY ucdlib-wp-plugins/ucdlib-assets/assets assets
+COPY ucdlib-wp-plugins/ucdlib-assets/views views
 COPY ucdlib-wp-plugins/ucdlib-assets/includes includes
 COPY ucdlib-wp-plugins/ucdlib-assets/ucdlib-assets.php ucdlib-assets.php
 COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js src/editor/ucdlib-editor.js
-#COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/lib src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib src/public/lib
 
@@ -317,5 +317,5 @@ WORKDIR $WP_SRC_ROOT
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# WHY???
+# start apache
 CMD ["apache2-foreground"]
