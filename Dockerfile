@@ -174,7 +174,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:5.9.0
+FROM wordpress:5.9.0 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
