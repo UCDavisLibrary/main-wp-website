@@ -10,6 +10,7 @@ ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.17.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -24,6 +25,7 @@ ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
+ARG PLUGIN_BROKEN_LINK_CHECKER
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
@@ -32,6 +34,7 @@ RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDAT
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -191,6 +194,7 @@ ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
+ARG PLUGIN_BROKEN_LINK_CHECKER
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -258,6 +262,10 @@ RUN rm ${PLUGIN_USER_ROLE_EDITOR}
 COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 RUN unzip ${PLUGIN_SMTP_MAILER}
 RUN rm ${PLUGIN_SMTP_MAILER}
+
+COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
+RUN unzip ${PLUGIN_BROKEN_LINK_CHECKER}
+RUN rm ${PLUGIN_BROKEN_LINK_CHECKER}
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
