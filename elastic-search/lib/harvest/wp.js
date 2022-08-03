@@ -4,6 +4,7 @@ import metrics from '../metrics.js';
 import wordpressTransform from '../transform/wordpress.js';
 import elasticSearch from '../elastic-search.js';
 import config from '../config.js';
+import {unserialize} from 'php-serialize';
 
 class WPHarvest {
 
@@ -64,7 +65,12 @@ class WPHarvest {
     let post = {};
 
     try {
-      let qResp = await mysql.query(`select ID, post_type, post_content, post_name, post_title, post_status, post_date_gmt, post_modified_gmt from wp_posts where ID=${postId}`);
+      let qResp = await mysql.query(`select 
+        p.ID, post_type, post_content, post_name, post_author, user_email, post_title, post_status, post_date_gmt, post_modified_gmt 
+      from 
+        wp_posts p
+      left join wp_users u on p.post_author = u.ID
+      where p.ID=${postId}`);
       
       // post doesn't exists
       // TODO: delete from elastic search
@@ -102,6 +108,34 @@ class WPHarvest {
           return item;
         })
         .filter(item => ['tag', 'category'].includes(item.taxonomy));
+
+      // get post meta
+      post.meta = {};
+      qResp = await mysql.query(`select * from wp_postmeta where post_id = ${postId};`);
+      qResp.results.forEach(item => {
+        if( !post.meta[item.meta_key] ) post.meta[item.meta_key] = [];
+        post.meta[item.meta_key].push(item.meta_value);
+      });
+
+      // custom meta field parsing
+
+      // curators
+      if( post.meta.curators ) {
+        post.meta.curators = post.meta.curators.map(item => unserialize(item))[0];
+        qResp = await mysql.query(`select * from wp_postmeta where meta_key = 'contactEmail' and post_id IN (?)`, [post.meta.curators]);
+        if( qResp.results.length ) {
+          post.meta.curator_emails = unserialize(qResp.results[0].meta_value)
+            .map(item => item.value)
+        }
+      }
+      // ucd_hide_author
+      if( post.meta.ucd_hide_author ) {
+        if( post.meta.ucd_hide_author.length && post.meta.ucd_hide_author[0] === '1' ) {
+          post.meta.ucd_hide_author = true;
+        } else {
+          post.meta.ucd_hide_author = false;
+        }
+      }
 
       let record = wordpressTransform(post);
 

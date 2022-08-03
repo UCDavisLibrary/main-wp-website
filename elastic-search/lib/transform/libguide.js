@@ -16,6 +16,7 @@ function transformRecord(libguideSource, libguide, parentRecord) {
       .replace(/: Home$/i, '')
       .replace(/^Research Guides:/i, '' )
       .trim();
+    record.authors = libguide.author;
 
     if( libguide.dublinCore ) {
       record.description = libguide.dublinCore.description;

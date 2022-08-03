@@ -11,7 +11,7 @@ import fetch from 'node-fetch';
 class GCSHarvest {
 
   constructor() {
-    logger.info('Scheduling LibGuides GCS crawl cron for: '+config.libguides.harvestSchedule);
+    logger.info('Scheduling LibGuides GCS crawl ('+config.storage.bucket+') cron for: '+config.libguides.harvestSchedule);
     this.cronJob = new CronJob(config.libguides.harvestSchedule, () => {
       this.run();
     }, null, true, 'America/Los_Angeles');
