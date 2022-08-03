@@ -45,6 +45,16 @@ function transformRecord(post) {
   }
   record.authors = Array.from(authors);
 
+  // bio
+  if( post.meta.bio ) {
+    record.content += post.meta.bio.join('\n');
+  }
+
+  // collectionType overrides type
+  if( post.meta.collectionType && post.meta.collectionType.length ) {
+    record.collectionType = post.meta.collectionType[0];
+  }
+
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
 
