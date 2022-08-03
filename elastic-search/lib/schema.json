@@ -87,6 +87,10 @@
       }
     },
 
+    "authors" : {
+      "type" : "keyword"
+    },
+
     "updated" : {
       "type" : "date"
     },

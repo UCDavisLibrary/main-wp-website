@@ -32,12 +32,12 @@ const config = {
   },
 
   wordpress : {
-    types : WP_TYPES || ['post', 'page', 'location', 'exhibits']
+    types : WP_TYPES || ['post', 'page', 'location', 'exhibit', 'person', 'collection']
   },
 
   indexer : {
     // be default the sortByDate will be set to modified date, unless in this array
-    sortByDateCreated : ['post', 'exhibits']
+    sortByDateCreated : ['post', 'exhibit']
   },
 
   instance : {

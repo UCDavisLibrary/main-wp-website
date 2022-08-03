@@ -16,7 +16,9 @@ function transformRecord(post) {
     content : '',
     blocks : {},
     subjects : [],
-    tags : []
+    tags : [],
+    authors : [],
+    ucd_hide_author: post.meta.ucd_hide_author ? true : false
   };
 
   setDates(record);
@@ -34,6 +36,14 @@ function transformRecord(post) {
       .forEach(ele => ele.remove());
   });
   post.post_content = dom.window.document.body.innerHTML;
+
+  // authors
+  let authors = new Set();
+  if( post.user_email ) authors.add(post.user_email);
+  if( post.meta.curator_emails ) {
+    post.meta.curator_emails.forEach(email => authors.add(email));
+  }
+  record.authors = Array.from(authors);
 
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
