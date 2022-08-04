@@ -7,6 +7,10 @@
       "type" : "keyword"
     },
 
+    "ucd_hide_author" : {
+      "type": "boolean"
+    },
+
     "collectionType" : {
       "type" : "keyword"
     },

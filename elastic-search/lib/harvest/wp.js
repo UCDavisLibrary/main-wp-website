@@ -137,6 +137,11 @@ class WPHarvest {
         }
       }
 
+      // default collection to be a manuscript
+      if ( post.post_type == 'collection' && (!post.meta.collectionType || !post.meta.collectionType.length)) {
+        post.meta.collectionType = ['manuscript'];
+      }
+
       let record = wordpressTransform(post);
 
       // check the md5 hash with current elastic search record
