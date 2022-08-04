@@ -8,6 +8,7 @@ import config from '../config.js';
 class WPHarvest {
 
   constructor() {
+    this.rtRunning = false;
     this.POST_TYPES = config.wordpress.types;
     logger.info('Wordpress indexer will index posts of types: '+this.POST_TYPES.join(', '));
   }
@@ -25,9 +26,16 @@ class WPHarvest {
   }
 
   async run() {
+    if( this.rtRunning === true ) return;
+
     let {results, fields} = await mysql.query(`select * from ${mysql.LOG_TABLE}`); 
-    if( results.length === 0 ) return;
+    if( results.length === 0 ) {
+      this.rtRunning = false;
+      return;
+    }
     
+    this.rtRunning = true;
+
     let byId = {};
     results.forEach(row => {
       byId[row.post_id] = row;
@@ -36,6 +44,8 @@ class WPHarvest {
     for( let postId in byId ) {
       await this.harvestPost(postId);
     }
+
+    this.rtRunning = false;
   }
 
   async reharvestAll() {
