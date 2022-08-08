@@ -7,6 +7,14 @@
       "type" : "keyword"
     },
 
+    "ucd_hide_author" : {
+      "type": "boolean"
+    },
+
+    "collectionType" : {
+      "type" : "keyword"
+    },
+
     "title" : {
       "type" : "text",
       "analyzer": "defaultAnalyzer",
@@ -85,6 +93,10 @@
           "analyzer": "defaultAnalyzer"
         }
       }
+    },
+
+    "authors" : {
+      "type" : "keyword"
     },
 
     "updated" : {

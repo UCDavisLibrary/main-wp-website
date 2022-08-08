@@ -16,7 +16,9 @@ function transformRecord(post) {
     content : '',
     blocks : {},
     subjects : [],
-    tags : []
+    tags : [],
+    authors : [],
+    ucd_hide_author: post.meta.ucd_hide_author ? true : false
   };
 
   setDates(record);
@@ -34,6 +36,24 @@ function transformRecord(post) {
       .forEach(ele => ele.remove());
   });
   post.post_content = dom.window.document.body.innerHTML;
+
+  // authors
+  let authors = new Set();
+  if( post.user_email ) authors.add(post.user_email);
+  if( post.meta.curator_emails ) {
+    post.meta.curator_emails.forEach(email => authors.add(email));
+  }
+  record.authors = Array.from(authors);
+
+  // bio
+  if( post.meta.bio ) {
+    record.content += post.meta.bio.join('\n');
+  }
+
+  // collectionType overrides type
+  if( post.meta.collectionType && post.meta.collectionType.length ) {
+    record.collectionType = post.meta.collectionType[0];
+  }
 
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));

@@ -17,6 +17,15 @@ function transformRecord(libguideSource, libguide, parentRecord) {
       .replace(/^Research Guides:/i, '' )
       .trim();
 
+    if ( libguide.author ){
+      if ( Array.isArray(libguide.author) ){
+        record.authors = libguide.author;
+      } else {
+        record.authors = [libguide.author];
+      }
+    }
+    record.ucd_hide_author = false;
+
     if( libguide.dublinCore ) {
       record.description = libguide.dublinCore.description;
       record.created = libguide.dublinCore['date.created'];
