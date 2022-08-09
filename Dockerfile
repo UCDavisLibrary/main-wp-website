@@ -4,13 +4,15 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.2.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.16.2.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.2.3.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.62.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmudev-updates-4.11.12.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.3.zip"
 ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.17.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.17.2.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.3.4.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.3.2.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.10.3.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.63.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.14.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -21,8 +23,10 @@ ARG GOOGLE_KEY_FILE_CONTENT
 ARG BUCKET_NAME
 ARG PLUGIN_ACF
 ARG PLUGIN_FORMINATOR
+ARG PLUGIN_HUMMINGBIRD
 ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
+ARG PLUGIN_SMUSH
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
@@ -35,6 +39,8 @@ RUN gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} .
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -177,7 +183,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:5.9.0 as wordpress
+FROM wordpress:6.0.1 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
@@ -190,8 +196,10 @@ ENV PLUGIN_ROOT=${PLUGIN_ROOT}
 ARG NODE_VERSION
 ARG PLUGIN_ACF
 ARG PLUGIN_FORMINATOR
+ARG PLUGIN_HUMMINGBIRD
 ARG PLUGIN_REDIRECTION
 ARG PLUGIN_SMTP_MAILER
+ARG PLUGIN_SMUSH
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
@@ -255,6 +263,10 @@ COPY --from=gcloud /cache/${PLUGIN_FORMINATOR} .
 RUN unzip ${PLUGIN_FORMINATOR}
 RUN rm ${PLUGIN_FORMINATOR}
 
+COPY --from=gcloud /cache/${PLUGIN_HUMMINGBIRD} .
+RUN unzip ${PLUGIN_HUMMINGBIRD}
+RUN rm ${PLUGIN_HUMMINGBIRD}
+
 COPY --from=gcloud /cache/${PLUGIN_USER_ROLE_EDITOR} .
 RUN unzip ${PLUGIN_USER_ROLE_EDITOR}
 RUN rm ${PLUGIN_USER_ROLE_EDITOR}
@@ -262,6 +274,10 @@ RUN rm ${PLUGIN_USER_ROLE_EDITOR}
 COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 RUN unzip ${PLUGIN_SMTP_MAILER}
 RUN rm ${PLUGIN_SMTP_MAILER}
+
+COPY --from=gcloud /cache/${PLUGIN_SMUSH} .
+RUN unzip ${PLUGIN_SMUSH}
+RUN rm ${PLUGIN_SMUSH}
 
 COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
 RUN unzip ${PLUGIN_BROKEN_LINK_CHECKER}
