@@ -14,8 +14,38 @@ php_value max_execution_time 300
 php_value max_input_time 300
 
 # END WordPress
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault A0
+  <FilesMatch "\.(txt|xml|js)$">
+    ExpiresDefault A2592000
+  </FilesMatch>
+  <FilesMatch "\.(css)$">
+    ExpiresDefault A86400
+  </FilesMatch>
+  <FilesMatch "\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav|mp4|m4v|ogg|webm|aac|eot|ttf|otf|woff|woff2|svg)$">
+    ExpiresDefault A86400
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|gif|swf|webp)$">
+    ExpiresDefault A86400
+  </FilesMatch>
+</IfModule>
+
 <IfModule mod_headers.c>
   <FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|font.css|css|js)$">
     Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+  <FilesMatch "\.(txt|xml|js)$">
+    Header set Cache-Control "max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(css)$">
+    Header set Cache-Control "max-age=86400"
+  </FilesMatch>
+  <FilesMatch "\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav|mp4|m4v|ogg|webm|aac|eot|ttf|otf|woff|woff2|svg)$">
+    Header set Cache-Control "max-age=86400"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|gif|swf|webp)$">
+    Header set Cache-Control "max-age=86400"
   </FilesMatch>
 </IfModule>
