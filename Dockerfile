@@ -4,15 +4,15 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.3.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.18.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.17.2.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.3.4.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.3.2.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.11.1.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.63.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.14.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.0.5.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.21.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.21.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.4.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.3.5.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.5.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.12.3.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.63.1.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.17.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -183,7 +183,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:6.0.1 as wordpress
+FROM wordpress:6.1.1 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
