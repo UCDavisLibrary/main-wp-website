@@ -4,15 +4,15 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-5.12.3.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.18.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.17.2.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.3.4.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.3.2.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.4.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.11.1.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor.4.63.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.14.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.0.5.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.21.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.21.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.4.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.3.5.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.5.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.12.3.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.63.1.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.17.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -32,15 +32,15 @@ ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} .
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} .
+RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -183,7 +183,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:6.0.1 as wordpress
+FROM wordpress:6.1.1 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
@@ -214,9 +214,7 @@ RUN apt-get update && apt-get install -y nodejs unzip
 WORKDIR $WP_SRC_ROOT
 
 # Apache config
-RUN a2enmod headers
-RUN a2enmod status
-RUN a2enmod access_compat
+RUN a2enmod headers && a2enmod status && a2enmod access_compat
 COPY .htaccess .htaccess
 COPY monitoring/status.conf /etc/apache2/conf-available/status.conf
 COPY monitoring/ports.conf /etc/apache2/ports.conf
@@ -231,98 +229,80 @@ RUN set -eux; \
 	cp -s wp-config-docker.php wp-config.php
 
 # WP CLI for downloading third-party plugins, among other things
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/wp
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+&& chmod +x wp-cli.phar \
+&& mv wp-cli.phar /usr/local/bin/wp
 
 # drop OOTB themes and plugins
-RUN cd wp-content/themes && rm -rf */
-RUN cd wp-content/plugins && rm -rf */
-RUN cd wp-content/plugins && rm -f hello.php
+RUN cd $THEME_ROOT && rm -rf */ \
+&& cd $PLUGIN_ROOT && rm -rf */ && rm -f hello.php
 
 # Install composer dependencies for theme and plugins
 ENV COMPOSER_ALLOW_SUPERUSER=1;
 COPY composer.json .
 RUN composer install
 
-# place third-party plugins
+# place and unzip third-party plugins
 WORKDIR $PLUGIN_ROOT
 COPY --from=gcloud /cache/${PLUGIN_ACF} .
-RUN unzip ${PLUGIN_ACF}
-RUN rm ${PLUGIN_ACF}
-
 COPY --from=gcloud /cache/${PLUGIN_REDIRECTION} .
-RUN unzip ${PLUGIN_REDIRECTION}
-RUN rm ${PLUGIN_REDIRECTION}
-
 COPY --from=gcloud /cache/${PLUGIN_WPMUDEV_UPDATES} .
-RUN unzip ${PLUGIN_WPMUDEV_UPDATES}
-RUN rm ${PLUGIN_WPMUDEV_UPDATES}
-
 COPY --from=gcloud /cache/${PLUGIN_FORMINATOR} .
-RUN unzip ${PLUGIN_FORMINATOR}
-RUN rm ${PLUGIN_FORMINATOR}
-
 COPY --from=gcloud /cache/${PLUGIN_HUMMINGBIRD} .
-RUN unzip ${PLUGIN_HUMMINGBIRD}
-RUN rm ${PLUGIN_HUMMINGBIRD}
-
 COPY --from=gcloud /cache/${PLUGIN_USER_ROLE_EDITOR} .
-RUN unzip ${PLUGIN_USER_ROLE_EDITOR}
-RUN rm ${PLUGIN_USER_ROLE_EDITOR}
-
 COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
-RUN unzip ${PLUGIN_SMTP_MAILER}
-RUN rm ${PLUGIN_SMTP_MAILER}
-
 COPY --from=gcloud /cache/${PLUGIN_SMUSH} .
-RUN unzip ${PLUGIN_SMUSH}
-RUN rm ${PLUGIN_SMUSH}
-
 COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
-RUN unzip ${PLUGIN_BROKEN_LINK_CHECKER}
-RUN rm ${PLUGIN_BROKEN_LINK_CHECKER}
+RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
+&& unzip ${PLUGIN_REDIRECTION} && rm ${PLUGIN_REDIRECTION} \
+&& unzip ${PLUGIN_WPMUDEV_UPDATES} && rm ${PLUGIN_WPMUDEV_UPDATES} \
+&& unzip ${PLUGIN_FORMINATOR} && rm ${PLUGIN_FORMINATOR} \
+&& unzip ${PLUGIN_HUMMINGBIRD} && rm ${PLUGIN_HUMMINGBIRD} \
+&& unzip ${PLUGIN_USER_ROLE_EDITOR} && rm ${PLUGIN_USER_ROLE_EDITOR} \
+&& unzip ${PLUGIN_SMTP_MAILER} && rm ${PLUGIN_SMTP_MAILER} \
+&& unzip ${PLUGIN_SMUSH} && rm ${PLUGIN_SMUSH} \
+&& unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER}
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
-RUN cd $THEME_ROOT/ucdlib-theme-wp/src/editor && npm link
-RUN cd $THEME_ROOT/ucdlib-theme-wp/src/public && npm link
+RUN cd $THEME_ROOT/ucdlib-theme-wp/src/editor && npm link \
+&& cd $THEME_ROOT/ucdlib-theme-wp/src/public && npm link
 
 # copy our plugins
 COPY --from=ucdlib-locations /plugin/ucdlib-locations ucdlib-locations
-RUN cd ucdlib-locations/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
-RUN cd ucdlib-migration/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
-RUN cd ucdlib-directory/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-special /plugin/ucdlib-special ucdlib-special
-RUN cd ucdlib-special/src/editor && npm link @ucd-lib/brand-theme-editor
 COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
 COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
-RUN cd ucdlib-assets/src/editor && npm link @ucd-lib/brand-theme-editor
-RUN cd ucdlib-assets/src/public && npm link @ucd-lib/brand-theme
-
 COPY ucdlib-wp-plugins/ucd-cas ucd-cas
+
+# link theme private package
+RUN cd $PLUGIN_ROOT/ucdlib-locations/src/editor && npm link @ucd-lib/brand-theme-editor \
+&& cd $PLUGIN_ROOT/ucdlib-migration/src/editor && npm link @ucd-lib/brand-theme-editor \
+&& cd $PLUGIN_ROOT/ucdlib-directory/src/editor && npm link @ucd-lib/brand-theme-editor \
+&& cd $PLUGIN_ROOT/ucdlib-assets/src/editor && npm link @ucd-lib/brand-theme-editor \
+&& cd $PLUGIN_ROOT/ucdlib-assets/src/public && npm link @ucd-lib/brand-theme \
+&& cd $PLUGIN_ROOT/ucdlib-special/src/editor && npm link @ucd-lib/brand-theme-editor
 
 # build site static assets
 WORKDIR "$PLUGIN_ROOT/ucdlib-assets/src"
-RUN cd public && npm run dist
-RUN cd editor && npm run dist
+RUN cd public && npm run dist && cd ../editor && npm run dist
 
 # clean up, because this stupid image copies everything we leave around
 # however, it does make image smaller
-RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules
-RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-directory/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules
-RUN rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
+RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules \
+&& rm -rf $THEME_ROOT/ucdlib-theme-wp/src/editor/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-assets/src/public/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-assets/src/editor/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-directory/src/editor/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-directory/src/public/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-locations/src/public/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-locations/src/editor/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-migration/src/editor/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-search/src/public/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules \
+&& rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
 
 # set build tags
 ARG WEBSITE_TAG

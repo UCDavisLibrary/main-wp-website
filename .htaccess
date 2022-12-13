@@ -7,6 +7,14 @@ RewriteRule ^index\.php$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]
+RewriteRule robots\.txt$ index.php?robots=1
+
+# Block WordPress xmlrpc.php requests
+<Files xmlrpc.php>
+order deny,allow
+deny from all
+allow from xxx.xxx.xxx.xxx
+</Files>
 
 php_value upload_max_filesize 256M
 php_value post_max_size 256M
