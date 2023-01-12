@@ -4,14 +4,15 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG BUCKET_NAME=website-v3-content
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.0.5.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.0.6.zip"
 ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-1.11.21.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.21.zip"
+ARG PLUGIN_DEFENDER="defender-pro-3.7.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.22.1.zip"
 ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.4.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.3.5.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.3.6.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.5.zip"
 ARG PLUGIN_SMUSH="smush-pro-3.12.3.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.63.1.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.63.2.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.17.zip"
 
 # Download third-party plugins from cloud bucket
@@ -30,6 +31,7 @@ ARG PLUGIN_SMUSH
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
+ARG PLUGIN_DEFENDER
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} . \
@@ -40,7 +42,8 @@ RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_AC
 && gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} . \
 && gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} . \
 && gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} .
+&& gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/defender-pro/${PLUGIN_DEFENDER} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -203,6 +206,7 @@ ARG PLUGIN_SMUSH
 ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
+ARG PLUGIN_DEFENDER
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -253,6 +257,7 @@ COPY --from=gcloud /cache/${PLUGIN_USER_ROLE_EDITOR} .
 COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 COPY --from=gcloud /cache/${PLUGIN_SMUSH} .
 COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
+COPY --from=gcloud /cache/${PLUGIN_DEFENDER} .
 RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_REDIRECTION} && rm ${PLUGIN_REDIRECTION} \
 && unzip ${PLUGIN_WPMUDEV_UPDATES} && rm ${PLUGIN_WPMUDEV_UPDATES} \
@@ -261,7 +266,8 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_USER_ROLE_EDITOR} && rm ${PLUGIN_USER_ROLE_EDITOR} \
 && unzip ${PLUGIN_SMTP_MAILER} && rm ${PLUGIN_SMTP_MAILER} \
 && unzip ${PLUGIN_SMUSH} && rm ${PLUGIN_SMUSH} \
-&& unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER}
+&& unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER} \
+&& unzip ${PLUGIN_DEFENDER} && rm ${PLUGIN_DEFENDER}
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
