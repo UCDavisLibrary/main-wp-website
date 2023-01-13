@@ -105,7 +105,8 @@ class WPHarvest {
         return;
       }
 
-      // get tag and category terms
+      // get terms we are interested in
+      const termTypes = ['tag', 'category', 'directory-tag', 'library', 'expertise-areas'];
       qResp = await mysql.query(`select * 
         from wp_term_relationships tr
         left join wp_term_taxonomy tt on tr.term_taxonomy_id = tt.term_taxonomy_id
@@ -117,7 +118,7 @@ class WPHarvest {
           if( item.taxonomy === 'post_tag' ) item.taxonomy = 'tag';
           return item;
         })
-        .filter(item => ['tag', 'category'].includes(item.taxonomy));
+        .filter(item => termTypes.includes(item.taxonomy));
 
       // get post meta
       post.meta = {};

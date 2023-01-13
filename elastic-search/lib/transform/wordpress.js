@@ -58,6 +58,23 @@ function transformRecord(post) {
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
 
+  // grab all metadata needed to run the directory search
+  if ( post.post_type == 'person' ){
+    record = {...record, 
+      positionTitle: '',
+      departmentIds: [],
+      libraryIds: [],
+      directoryTagIds: [],
+      areasOfExperise: []
+    }
+
+    for( let term of post.terms ) {
+      if( term.taxonomy === 'directory-tag' ) record.directoryTagIds.push(term.term_id);
+      if( term.taxonomy === 'library' ) record.libraryIds.push(term.term_id);
+      if( term.taxonomy === 'expertise-areas' ) record.areasOfExperise.push(htmlEntities.decode(term.name));
+    }
+  }
+
   record.md5 = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex');
   return record;
 }

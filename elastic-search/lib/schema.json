@@ -95,6 +95,43 @@
       }
     },
 
+    "positionTitle" : {
+      "type" : "text",
+      "analyzer": "defaultAnalyzer",
+      "fields": {
+        "trigram": {
+          "type": "text",
+          "analyzer": "trigram"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "reverse"
+        }
+      }
+    },
+
+    "departmentIds" : {
+      "type": "keyword"
+    },
+
+    "libraryIds" : {
+      "type" : "keyword"
+    },
+
+    "directoryTagIds" : {
+      "type" : "keyword"
+    },
+
+    "areasOfExperise" : {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
+    },
+
     "authors" : {
       "type" : "keyword"
     },
