@@ -29,6 +29,25 @@ app.get('/reindex', async (req, res) => {
   reindexRunning = false;
 });
 
+app.get('/reindex-wp', async (req, res) => {
+  if( reindexRunning ) {
+    return res.json({status: 'already running'});
+  }
+
+  let rebuildSchema = (req.query.rebuildSchema === 'true');
+
+  reindexRunning = true;
+  res.json({status: 'started', rebuildSchema});
+  
+  if( rebuildSchema ) {
+    await es.deleteIndex();
+    await es.ensureIndex();
+  }
+
+  await wp.reharvestAll();
+  reindexRunning = false;
+});
+
 async function init() {
   await wp.init();
   wp.startInterval();

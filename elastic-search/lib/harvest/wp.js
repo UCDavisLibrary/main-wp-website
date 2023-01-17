@@ -76,7 +76,7 @@ class WPHarvest {
 
     try {
       let qResp = await mysql.query(`select 
-        p.ID, post_type, post_content, post_name, post_author, user_email, post_title, post_status, post_date_gmt, post_modified_gmt 
+        p.ID, post_type, post_content, post_name, post_author, user_email, post_title, post_status, post_date_gmt, post_modified_gmt, menu_order 
       from 
         wp_posts p
       left join wp_users u on p.post_author = u.ID
@@ -129,6 +129,13 @@ class WPHarvest {
       });
 
       // custom meta field parsing
+
+      // past employee
+      if ( post.meta.pastEmployee && post.meta.pastEmployee.length && post.meta.pastEmployee[0] ){
+        await this.deletePostFromEs(postId);
+        this.recordStatus(post.post_type, 'ignored-quit', postId);
+        return;
+      }
 
       // curators
       if( post.meta.curators ) {

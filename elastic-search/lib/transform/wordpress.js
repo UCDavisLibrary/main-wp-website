@@ -18,7 +18,8 @@ function transformRecord(post) {
     subjects : [],
     tags : [],
     authors : [],
-    ucd_hide_author: post.meta.ucd_hide_author ? true : false
+    ucd_hide_author: post.meta.ucd_hide_author ? true : false,
+    menuOrder: post.menu_order ? post.menu_order : 0
   };
 
   setDates(record);
@@ -65,7 +66,8 @@ function transformRecord(post) {
       departmentIds: [],
       libraryIds: [],
       directoryTagIds: [],
-      areasOfExperise: []
+      areasOfExperise: [],
+      ucd_hide_author: true
     }
 
     for( let term of post.terms ) {
@@ -73,6 +75,15 @@ function transformRecord(post) {
       if( term.taxonomy === 'library' ) record.libraryIds.push(term.term_id);
       if( term.taxonomy === 'expertise-areas' ) record.areasOfExperise.push(htmlEntities.decode(term.name));
     }
+
+    if ( post.meta.position_title && post.meta.position_title.length ){
+      record.positionTitle = post.meta.position_title[0];
+    }
+
+    if ( post.meta.position_dept ){
+      record.departmentIds = post.meta.position_dept;
+    }
+
   }
 
   record.md5 = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex');

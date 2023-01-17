@@ -132,6 +132,10 @@
       }
     },
 
+    "menuOrder": {
+      "type": "integer"
+    },
+
     "authors" : {
       "type" : "keyword"
     },
