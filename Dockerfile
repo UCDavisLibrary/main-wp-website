@@ -227,6 +227,14 @@ RUN cd /etc/apache2/conf-enabled && ln -s ../conf-available/status.conf
 # WP config
 COPY wp-config-docker.php wp-config-docker.php
 
+# directories needed by hummingbird cache plugin
+RUN mkdir wp-content/wphb-cache; \
+    mkdir wp-content/wphb-logs; \
+	chown www-data wp-content/wphb-logs; \
+	chgrp www-data wp-content/wphb-logs; \
+	chown www-data wp-content/wphb-cache; \
+	chgrp www-data wp-content/wphb-cache
+
 # Switch apache to use wp src
 RUN set -eux; \
 	find /etc/apache2 -name '*.conf' -type f -exec sed -ri -e "s!/var/www/html!$PWD!g" -e "s!Directory /var/www/!Directory $PWD!g" '{}' +; \
