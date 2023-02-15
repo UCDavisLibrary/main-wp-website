@@ -160,6 +160,12 @@ class WPHarvest {
         post.meta.collectionType = ['manuscript'];
       }
 
+      // person departments
+      if ( post.meta.position_dept ){
+        qResp = await mysql.query(`select ID, post_title from wp_posts where post_status = 'publish' and ID IN (?)`, [post.meta.position_dept]);
+        if( qResp.results.length ) post.departments = qResp.results;
+      }
+
       let record = wordpressTransform(post);
 
       // check the md5 hash with current elastic search record

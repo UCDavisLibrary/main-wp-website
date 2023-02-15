@@ -114,12 +114,42 @@
       "type": "keyword"
     },
 
+    "departmentNames": {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
+    },
+
     "libraryIds" : {
       "type" : "keyword"
     },
 
+    "libraryNames": {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
+    },
+
     "directoryTagIds" : {
       "type" : "keyword"
+    },
+
+    "directoryTagNames": {
+      "type" : "keyword",
+      "fields": {
+        "text" : {
+          "type" : "text",
+          "analyzer": "defaultAnalyzer"
+        }
+      }
     },
 
     "areasOfExperise" : {

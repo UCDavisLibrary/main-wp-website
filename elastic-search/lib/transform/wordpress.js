@@ -19,7 +19,8 @@ function transformRecord(post) {
     tags : [],
     authors : [],
     ucd_hide_author: post.meta.ucd_hide_author ? true : false,
-    menuOrder: post.menu_order ? post.menu_order : 0
+    menuOrder: post.menu_order ? post.menu_order : 0,
+    departments: []
   };
 
   setDates(record);
@@ -64,15 +65,24 @@ function transformRecord(post) {
     record = {...record, 
       positionTitle: '',
       departmentIds: [],
+      departmentNames: [],
       libraryIds: [],
+      libraryNames: [],
       directoryTagIds: [],
+      directoryTagNames: [],
       areasOfExperise: [],
       ucd_hide_author: true
     }
 
     for( let term of post.terms ) {
-      if( term.taxonomy === 'directory-tag' ) record.directoryTagIds.push(term.term_id);
-      if( term.taxonomy === 'library' ) record.libraryIds.push(term.term_id);
+      if( term.taxonomy === 'directory-tag' ) {
+        record.directoryTagIds.push(term.term_id);
+        record.directoryTagNames.push(term.name);
+      }
+      if( term.taxonomy === 'library' ) {
+        record.libraryIds.push(term.term_id);
+        record.libraryNames.push(term.name);
+      }
       if( term.taxonomy === 'expertise-areas' ) record.areasOfExperise.push(htmlEntities.decode(term.name));
     }
 
@@ -80,8 +90,11 @@ function transformRecord(post) {
       record.positionTitle = post.meta.position_title[0];
     }
 
-    if ( post.meta.position_dept ){
-      record.departmentIds = post.meta.position_dept;
+    if ( post.departments ){
+      for ( let dept of post.departments ){
+        record.departmentIds.push(dept.ID);
+        record.departmentNames.push(dept.post_title);
+      }
     }
 
   }
