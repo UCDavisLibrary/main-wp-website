@@ -41,9 +41,12 @@ function transformRecord(post) {
 
   // authors
   let authors = new Set();
-  if( post.user_email ) authors.add(post.user_email);
+  if( post.user_email && !post.meta.ucd_hide_og_author) authors.add(post.user_email);
   if( post.meta.curator_emails ) {
     post.meta.curator_emails.forEach(email => authors.add(email));
+  }
+  if( post.meta.additional_author_emails ) {
+    post.meta.additional_author_emails.forEach(email => authors.add(email));
   }
   record.authors = Array.from(authors);
 

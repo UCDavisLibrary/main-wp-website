@@ -155,6 +155,28 @@ class WPHarvest {
         }
       }
 
+      // multiple authors
+      if ( post.meta.ucd_hide_og_author) {
+        if( post.meta.ucd_hide_og_author.length && post.meta.ucd_hide_og_author[0] === '1' ) {
+          post.meta.ucd_hide_og_author = true;
+        } else {
+          post.meta.ucd_hide_og_author = false;
+        }
+      }
+      if ( post.meta.ucd_additional_authors ){
+        qResp = await mysql.query(`select * from wp_postmeta where meta_key = 'contactEmail' and post_id IN (?)`, [post.meta.ucd_additional_authors]);
+        if( qResp.results.length ) {
+          post.meta.additional_author_emails = [];
+          try {
+            qResp.results.forEach(item => {
+              unserialize(item.meta_value).forEach(v => {
+                post.meta.additional_author_emails.push(v.value);
+              });
+            });
+          } catch (error) {}
+        }
+      }
+
       // default collection to be a manuscript
       if ( post.post_type == 'collection' && (!post.meta.collectionType || !post.meta.collectionType.length)) {
         post.meta.collectionType = ['manuscript'];
