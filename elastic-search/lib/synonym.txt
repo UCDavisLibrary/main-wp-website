@@ -19,3 +19,7 @@ ils, sils, integrated library system, systemwide integrated library system
 ag, agriculture
 libguide, library guide
 wos, web science
+stats, statistics
+math, mathematics
+viticulture, wine
+bml, blaisdell medical library
