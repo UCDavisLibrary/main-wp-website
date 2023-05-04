@@ -9,6 +9,7 @@ ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.0.0.zip"
 ARG PLUGIN_DEFENDER="defender-pro-3.10.1.zip"
 ARG PLUGIN_FORMINATOR="forminator-pro-1.23.3.zip"
 ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.4.6.zip"
+ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.13.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.3.10.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.6.zip"
 ARG PLUGIN_SMUSH="smush-pro-3.12.6.zip"
@@ -32,6 +33,7 @@ ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
 ARG PLUGIN_DEFENDER
+ARG PLUGIN_LIGHTBOX
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
 RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} . \
@@ -43,6 +45,7 @@ RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_AC
 && gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} . \
 && gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} . \
 && gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} . \
+&& gsutil cp gs://${BUCKET_NAME}/plugins/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
 && gsutil cp gs://${BUCKET_NAME}/plugins/defender-pro/${PLUGIN_DEFENDER} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
@@ -207,6 +210,7 @@ ARG PLUGIN_USER_ROLE_EDITOR
 ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
 ARG PLUGIN_DEFENDER
+ARG PLUGIN_LIGHTBOX
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -266,6 +270,7 @@ COPY --from=gcloud /cache/${PLUGIN_SMTP_MAILER} .
 COPY --from=gcloud /cache/${PLUGIN_SMUSH} .
 COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
 COPY --from=gcloud /cache/${PLUGIN_DEFENDER} .
+COPY --from=gcloud /cache/${PLUGIN_LIGHTBOX} .
 RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_REDIRECTION} && rm ${PLUGIN_REDIRECTION} \
 && unzip ${PLUGIN_WPMUDEV_UPDATES} && rm ${PLUGIN_WPMUDEV_UPDATES} \
@@ -275,7 +280,8 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_SMTP_MAILER} && rm ${PLUGIN_SMTP_MAILER} \
 && unzip ${PLUGIN_SMUSH} && rm ${PLUGIN_SMUSH} \
 && unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER} \
-&& unzip ${PLUGIN_DEFENDER} && rm ${PLUGIN_DEFENDER}
+&& unzip ${PLUGIN_DEFENDER} && rm ${PLUGIN_DEFENDER} \
+&& unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX}
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
