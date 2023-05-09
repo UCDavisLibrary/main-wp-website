@@ -3,6 +3,11 @@ import fetch from "node-fetch";
 import Config from "./config.js";
 import cache from '../lib/http-cache.js';
 
+/**
+ * @class WpApi
+ * @description  Wrapper for the WP API
+ * @param {Config} config - Instantiated config object from wp-api-etl/lib/config.js
+ */
 class WpApi {
   constructor(config) {
     if ( config ) {
@@ -43,6 +48,18 @@ class WpApi {
     return type;
   }
 
+  /**
+   * @description Retrieve list of posts of a given type
+   * @param {String} postType - A registered post type - ie 'page', 'exhibit', 'post', etc.
+   * @param {Object} params - Params object with the following properties:
+   * - query: Object - URL Query params to pass to the API
+   * - host: String - Hostname to use for the API (defaults to class config value)
+   * - apiPath: String - Path of the API (defaults to class config value)
+   * - useCache: Boolean - Whether to use the cache (defaults to class config value)
+   * - writeToCache: Boolean - Whether to write to the cache (defaults to class config value)
+   *
+   * @returns {Array}
+   */
   async getPostsByType(postType, params = {}) {
     postType = this.getTypeName(postType);
     const queryParams = this.toSearchParamsObject(params.query);
@@ -69,7 +86,6 @@ class WpApi {
 
     const q = queryParams.toString();
     let url = `${host}${apiPath}/${postType}${q ? '?' + q : ''}`;
-    console.log(`Fetching ${url}`);
 
     if ( useCache ){
       const cached = cache.get(url);
@@ -92,6 +108,17 @@ class WpApi {
 
   }
 
+  /**
+   * @description Retrieve all posts of a given type
+   * @param {String} postType - A registered post type - ie 'page', 'exhibit', 'post', etc.
+   * @param {Object} params - Params object with the following properties:
+   * - query: Object - URL Query params to pass to the API
+   * - host: String - Hostname to use for the API (defaults to class config value)
+   * - apiPath: String - Path of the API (defaults to class config value)
+   * - useCache: Boolean - Whether to use the cache (defaults to class config value)
+   * - writeToCache: Boolean - Whether to write to the cache (defaults to class config value)
+   * @returns {Array}
+   */
   async getPostsByTypeAll(postType, params = {}) {
     const out = [];
     let page = 1;
@@ -107,8 +134,14 @@ class WpApi {
       }
       page++;
     }
+    return out;
   }
 
+  /**
+   * @description Convert an object to a URLSearchParams object and sort it
+   * @param {Object} params
+   * @returns
+   */
   toSearchParamsObject(params) {
     params = new URLSearchParams(params);
     params.sort();

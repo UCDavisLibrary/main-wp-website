@@ -1,7 +1,9 @@
-import Config from "../lib/config.js";
+import {JSDOM} from "jsdom";
 import { dirname, join } from 'path';
-import { fileURLToPath, URLSearchParams } from 'url';
-import { existsSync, mkdirSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
+
+import Config from "../lib/config.js";
 import WpApi from "../lib/wp-api.js";
 
 class LightBoxImageCheck {
@@ -21,7 +23,8 @@ class LightBoxImageCheck {
   }
 
   async run(){
-    this.findPostsWithMissingImageIds();
+    const posts = await this.findPostsWithMissingImageIds();
+    console.log(posts);
   }
 
   async findPostsWithMissingImageIds(postTypes = ['pages', 'exhibit']){
@@ -29,7 +32,26 @@ class LightBoxImageCheck {
       postTypes = [postTypes];
     }
     const out = {};
-    const p = await this.api.getPostsByTypeAll('exhibits');
+    for( let postType of postTypes ) {
+      const posts = await this.api.getPostsByTypeAll(postType);
+      for( let post of posts ) {
+        let imgCt = 0;
+        const dom = new JSDOM(post.content.rendered);
+        const galleries = dom.window.document.querySelectorAll('.wp-block-gallery');
+        for( let gallery of galleries ) {
+          const images = gallery.querySelectorAll('img');
+          for( let image of images ) {
+            if ( !image.hasAttribute('data-id') ) {
+              imgCt++;
+            }
+          }
+        }
+        if ( imgCt > 0 ) {
+          out[post.id] = {imgCt, post};
+        }
+      }
+    }
+    return out;
   }
 }
 

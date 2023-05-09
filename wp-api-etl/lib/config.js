@@ -1,9 +1,23 @@
 import dotenv from "dotenv";
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
 
+/**
+ * @class Config
+ * @description Configuration class for the WP API ETL. Sets defaults and reads from .env file if present.
+ * @param {String} envPath - Path to the .env file
+ */
 class Config {
   constructor(envPath) {
     if (envPath) {
       dotenv.config({ path: envPath });
+    } else {
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const envFile = join(__dirname, '../.env');
+      if (existsSync(envFile)) {
+        dotenv.config({ path: envFile });
+      }
     }
     const env = process.env;
 

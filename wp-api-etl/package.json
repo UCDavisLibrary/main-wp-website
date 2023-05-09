@@ -13,8 +13,13 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "bin": {
+    "ucdlib-wp-main": "cli/ucdlib-wp.js"
+  },
   "dependencies": {
+    "commander": "^10.0.1",
     "dotenv": "^16.0.3",
+    "jsdom": "^22.0.0",
     "node-fetch": "^3.3.1"
   }
 }
