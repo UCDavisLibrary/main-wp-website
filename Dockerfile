@@ -2,17 +2,17 @@ ARG WP_SRC_ROOT=/usr/src/wordpress
 ARG THEME_ROOT="$WP_SRC_ROOT/wp-content/themes"
 ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
-ARG BUCKET_NAME=website-v3-content
+ARG PLUGINS_BUCKET=wordpress-general/plugins
 ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.1.4.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.0.0.zip"
-ARG PLUGIN_DEFENDER="defender-pro-3.10.1.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.23.3.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.1.6.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.1.0.zip"
+ARG PLUGIN_DEFENDER="defender-pro-3.11.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.24.1.zip"
 ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.4.6.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.13.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.3.10.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.6.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.12.6.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.13.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.63.3.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.18.zip"
 
@@ -22,7 +22,7 @@ FROM google/cloud-sdk:alpine as gcloud
 RUN mkdir -p /cache
 WORKDIR /cache
 ARG GOOGLE_KEY_FILE_CONTENT
-ARG BUCKET_NAME
+ARG PLUGINS_BUCKET
 ARG PLUGIN_ACF
 ARG PLUGIN_FORMINATOR
 ARG PLUGIN_HUMMINGBIRD
@@ -36,17 +36,17 @@ ARG PLUGIN_DEFENDER
 ARG PLUGIN_LIGHTBOX
 
 RUN echo $GOOGLE_KEY_FILE_CONTENT | gcloud auth activate-service-account --key-file=-
-RUN gsutil cp gs://${BUCKET_NAME}/plugins/advanced-custom-fields-pro/${PLUGIN_ACF} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/redirection/${PLUGIN_REDIRECTION} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/forminator-pro/${PLUGIN_FORMINATOR} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/smtp-mailer/${PLUGIN_SMTP_MAILER} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/smush-pro/${PLUGIN_SMUSH} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/hummingbird-pro/${PLUGIN_HUMMINGBIRD} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
-&& gsutil cp gs://${BUCKET_NAME}/plugins/defender-pro/${PLUGIN_DEFENDER} .
+RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/redirection/${PLUGIN_REDIRECTION} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/forminator-pro/${PLUGIN_FORMINATOR} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/user-role-editor/${PLUGIN_USER_ROLE_EDITOR} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/smtp-mailer/${PLUGIN_SMTP_MAILER} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/broken-link-checker/${PLUGIN_BROKEN_LINK_CHECKER} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/smush-pro/${PLUGIN_SMUSH} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/hummingbird-pro/${PLUGIN_HUMMINGBIRD} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/defender-pro/${PLUGIN_DEFENDER} .
 
 FROM node:${NODE_VERSION} as ucdlib-theme-wp
 
@@ -189,7 +189,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:6.2.0 as wordpress
+FROM wordpress:6.2.2 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
