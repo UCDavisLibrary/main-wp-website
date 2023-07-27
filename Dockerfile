@@ -217,7 +217,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Install node & other apt dependencies
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
-RUN apt-get update && apt-get install -y nodejs unzip
+RUN apt-get update && apt-get install -y nodejs unzip git
 
 WORKDIR $WP_SRC_ROOT
 
@@ -282,6 +282,11 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER} \
 && unzip ${PLUGIN_DEFENDER} && rm ${PLUGIN_DEFENDER} \
 && unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX}
+
+# our forms rt extension
+RUN git clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
+&& cd forminator-addon-rt \
+&& git checkout v1.0.0
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
