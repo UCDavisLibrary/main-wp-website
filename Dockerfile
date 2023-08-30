@@ -189,7 +189,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:6.3.0 as wordpress
+FROM wordpress:6.3.1 as wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
