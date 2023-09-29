@@ -3,18 +3,18 @@ ARG THEME_ROOT="$WP_SRC_ROOT/wp-content/themes"
 ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG PLUGINS_BUCKET=wordpress-general/plugins
-ARG NODE_VERSION=16
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.2.0.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.2.1.zip"
-ARG PLUGIN_DEFENDER="defender-pro-4.0.1.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.25.1.zip"
+ARG NODE_VERSION=20
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.2.1.1.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.2.2.zip"
+ARG PLUGIN_DEFENDER="defender-pro-4.1.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.26.zip"
 ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.5.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.13.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.3.10.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.8.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.14.1.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.9.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.14.2.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.19.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.21.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -215,8 +215,14 @@ ARG PLUGIN_LIGHTBOX
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Install node & other apt dependencies
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
+# node setup
+RUN apt-get update \
+&& apt-get install -y ca-certificates curl gnupg \
+&& mkdir -p /etc/apt/keyrings \
+&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+&& echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_VERSION.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+
+# apt packages
 RUN apt-get update && apt-get install -y nodejs unzip git vim
 
 WORKDIR $WP_SRC_ROOT
