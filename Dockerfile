@@ -4,21 +4,21 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG PLUGINS_BUCKET=wordpress-general/plugins
 ARG NODE_VERSION=20
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.2.9.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.2.4.zip"
-ARG PLUGIN_DEFENDER="defender-pro-4.7.1.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.29.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.8.1.zip"
-ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.13.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.4.2.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.13.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.16.2.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.3.11.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.2.zip"
+ARG PLUGIN_DEFENDER="defender-pro-4.11.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.37.1.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.9.4.zip"
+ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.15.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.5.1.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.11.17.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.16.9.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.2.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.26.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.28.zip"
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
-FROM google/cloud-sdk:alpine as gcloud
+FROM google/cloud-sdk:alpine AS gcloud
 RUN mkdir -p /cache
 WORKDIR /cache
 ARG GOOGLE_KEY_FILE_CONTENT
@@ -48,7 +48,7 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 && gsutil cp gs://${PLUGINS_BUCKET}/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/defender-pro/${PLUGIN_DEFENDER} .
 
-FROM node:${NODE_VERSION} as ucdlib-theme-wp
+FROM node:${NODE_VERSION} AS ucdlib-theme-wp
 
 RUN mkdir -p /plugin/ucdlib-theme-wp/src/public
 WORKDIR /plugin/ucdlib-theme-wp/src/public
@@ -72,7 +72,7 @@ COPY ucdlib-theme-wp/src/public/lib src/public/lib
 COPY ucdlib-theme-wp/src/public/elements src/public/elements
 COPY ucdlib-theme-wp/src/public/page-scripts src/public/page-scripts
 
-FROM node:${NODE_VERSION} as ucdlib-assets
+FROM node:${NODE_VERSION} AS ucdlib-assets
 
 RUN mkdir -p /plugin/ucdlib-assets/src/public
 WORKDIR /plugin/ucdlib-assets/src/public
@@ -93,7 +93,7 @@ COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js src/editor/ucdl
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js src/public/index.js
 COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib src/public/lib
 
-FROM node:${NODE_VERSION} as ucdlib-locations
+FROM node:${NODE_VERSION} AS ucdlib-locations
 
 RUN mkdir -p /plugin/ucdlib-locations/src/public
 WORKDIR /plugin/ucdlib-locations/src/public
@@ -115,7 +115,7 @@ COPY ucdlib-wp-plugins/ucdlib-locations/src/public/lib src/public/lib
 COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/lib src/editor/lib
 
-FROM node:${NODE_VERSION} as ucdlib-migration
+FROM node:${NODE_VERSION} AS ucdlib-migration
 
 RUN mkdir -p /plugin/ucdlib-migration/src/editor
 WORKDIR /plugin/ucdlib-migration/src/editor
@@ -129,7 +129,7 @@ COPY ucdlib-wp-plugins/ucdlib-migration/ucdlib-migration.php ucdlib-migration.ph
 COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/lib src/editor/lib
 
-FROM node:${NODE_VERSION} as ucdlib-directory
+FROM node:${NODE_VERSION} AS ucdlib-directory
 
 RUN mkdir -p /plugin/ucdlib-directory/src/editor
 WORKDIR /plugin/ucdlib-directory/src/editor
@@ -151,7 +151,7 @@ COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
 COPY ucdlib-wp-plugins/ucdlib-directory/src/public/src src/public/src
 COPY ucdlib-wp-plugins/ucdlib-directory/src/public/index.js src/public/index.js
 
-FROM node:${NODE_VERSION} as ucdlib-search
+FROM node:${NODE_VERSION} AS ucdlib-search
 RUN mkdir -p /plugin/ucdlib-search/src/public
 WORKDIR /plugin/ucdlib-search/src/public
 COPY ucdlib-wp-plugins/ucdlib-search/src/public/package.json package.json
@@ -166,7 +166,7 @@ COPY ucdlib-wp-plugins/ucdlib-search/src/public/lib src/public/lib
 COPY ucdlib-wp-plugins/ucdlib-search/views views
 COPY ucdlib-wp-plugins/ucdlib-search/ucdlib-search.php ucdlib-search.php
 
-FROM node:${NODE_VERSION} as ucdlib-special
+FROM node:${NODE_VERSION} AS ucdlib-special
 
 RUN mkdir -p /plugin/ucdlib-special/src/public
 WORKDIR /plugin/ucdlib-special/src/public
@@ -189,7 +189,7 @@ COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
 COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
 
 
-FROM wordpress:6.5.3 as wordpress
+FROM wordpress:6.7.1 AS wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
@@ -292,7 +292,7 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 # our forms rt extension
 RUN git clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
 && cd forminator-addon-rt \
-&& git checkout v1.2.0
+&& git checkout v2.0.0
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
