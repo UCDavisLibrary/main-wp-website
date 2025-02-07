@@ -1,0 +1,19 @@
+{
+  "name": "@ucd-lib/main-website-utils",
+  "version": "0.0.1",
+  "description": "Package for crawling apache stats",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jrmerz@ucdavis.edu",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/monitoring": "^3.0.0",
+    "@slack/webhook": "^6.1.0",
+    "cron": "^2.1.0",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.2.9"
+  }
+}

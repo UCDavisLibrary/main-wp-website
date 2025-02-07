@@ -1,0 +1,47 @@
+{
+  "registry" : "us-west1-docker.pkg.dev/digital-ucdavis-edu/website",
+
+  "repositories" : {
+    "ucdlib-wp-plugins" : "https://github.com/UCDavisLibrary/ucdlib-wp-plugins",
+    "ucdlib-theme-wp" : "https://github.com/UCDavisLibrary/ucdlib-theme-wp"
+  },
+
+  "images" : {
+    "node-ucdlib-theme-wp" : {
+      "contextPath" : "devops",
+      "dockerfile" : "devops/Dockerfile.ucdlib-theme-wp",
+      "options" : {
+        "build-arg" : [
+          "NODE_VERSION=20",
+          "UCDLIB_THEME_WP_SRC_IMAGE=${ucdlib-theme-wp.ucdlib-theme-wp}"
+        ]
+      }
+    },
+    "node-ucdlib-wp-plugins" : {
+      "contextPath" : "devops",
+      "dockerfile" : "devops/Dockerfile.ucdlib-wp-plugins",
+      "options" : {
+        "build-arg" : [
+          "NODE_VERSION=20",
+          "UCDLIB_WP_PLUGINS_SRC_IMAGE=${ucdlib-wp-plugins.ucdlib-wp-plugins}"
+        ]
+      }
+    },
+    "main-wp-website" : {
+      "contextPath" : ".",
+      "dockerfile" : "devops/Dockerfile",
+      "options" : {
+        "build-arg" : [
+          "UCDLIB_THEME_WP_NODE_IMAGE=${main-wp-website.node-ucdlib-theme-wp}",
+          "UCDLIB_WP_PLUGINS_NODE_IMAGE=${main-wp-website.node-ucdlib-wp-plugins}"
+        ]
+      }
+    },
+    "main-wp-website-utils" : {
+      "contextPath" : "./utils"
+    },
+    "main-wp-website-es-indexer" : {
+      "contextPath" : "./elastic-search"
+    }
+  }
+}
