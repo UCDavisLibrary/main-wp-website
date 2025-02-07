@@ -32,13 +32,21 @@
       "dockerfile" : "devops/Dockerfile",
       "options" : {
         "build-arg" : [
+          "NODE_VERSION=20",
           "UCDLIB_THEME_WP_NODE_IMAGE=${main-wp-website.node-ucdlib-theme-wp}",
-          "UCDLIB_WP_PLUGINS_NODE_IMAGE=${main-wp-website.node-ucdlib-wp-plugins}"
+          "UCDLIB_WP_PLUGINS_NODE_IMAGE=${main-wp-website.node-ucdlib-wp-plugins}",
+          "GOOGLE_KEY_FILE_CONTENT=${secret.main-website-content-reader-key}"
         ]
       }
     },
     "main-wp-website-utils" : {
-      "contextPath" : "./utils"
+      "contextPath" : "./utils",
+      "options" : {
+        "build-arg" : [
+          "NODE_VERSION=20",
+          "BASE_IMAGE=${main-wp-website.main-wp-website}"
+        ]
+      }
     },
     "main-wp-website-es-indexer" : {
       "contextPath" : "./elastic-search"
