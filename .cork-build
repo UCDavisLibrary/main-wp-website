@@ -49,7 +49,12 @@
       }
     },
     "main-wp-website-es-indexer" : {
-      "contextPath" : "./elastic-search"
+      "contextPath" : "./elastic-search",
+      "options" : {
+        "build-arg" : [
+          "NODE_VERSION=20"
+        ]
+      }
     }
   }
 }

@@ -154,9 +154,9 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX}
 
 # our forms rt extension
-RUN git clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
-&& cd forminator-addon-rt \
-&& git checkout v2.0.0
+RUN git -c advice.detachedHead=false \
+	clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
+	--branch v2.0.0 --single-branch --depth 1
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
