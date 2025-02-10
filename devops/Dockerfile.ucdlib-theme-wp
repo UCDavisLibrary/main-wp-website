@@ -25,3 +25,6 @@ COPY --from=ucdlib-theme-wp-src /src/src/public/scss src/public/scss
 COPY --from=ucdlib-theme-wp-src /src/src/public/lib src/public/lib
 COPY --from=ucdlib-theme-wp-src /src/src/public/elements src/public/elements
 COPY --from=ucdlib-theme-wp-src /src/src/public/page-scripts src/public/page-scripts
+
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-theme-wp-src /cork-build-info/ucdlib-theme-wp.json /cork-build-info/ucdlib-theme-wp.json

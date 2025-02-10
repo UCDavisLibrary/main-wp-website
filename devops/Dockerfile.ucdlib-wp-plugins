@@ -116,3 +116,6 @@ COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/editor/lib src/editor/
 
 # CAS
 COPY --from=ucdlib-wp-plugins-src /src/ucd-cas /plugin/ucd-cas
+
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-wp-plugins-src /cork-build-info/ucdlib-wp-plugins.json /cork-build-info/ucdlib-wp-plugins.json

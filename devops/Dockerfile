@@ -216,5 +216,9 @@ WORKDIR $WP_SRC_ROOT
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-wp-plugins /cork-build-info/ucdlib-wp-plugins.json /cork-build-info/ucdlib-wp-plugins.json
+COPY --from=ucdlib-theme-wp /cork-build-info/ucdlib-theme-wp.json /cork-build-info/ucdlib-theme-wp.json
+
 # start apache
 CMD ["apache2-foreground"]
