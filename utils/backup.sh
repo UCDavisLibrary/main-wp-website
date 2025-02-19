@@ -8,6 +8,7 @@ GOOGLE_CLOUD_PROJECT=digital-ucdavis-edu
 GOOGLE_APPLICATION_CREDENTIALS=/etc/service-account.json
 SNAPSHOTS_DIR=/snapshots
 UPLOAD_DIR=/uploads
+WPHB_OPTIONS_FILE=/wphb-cache/wphb-cache.php
 
 if [[ -z $BACKUP_ENV ]]; then
   echo "BACKUP_ENV variable is required."
@@ -45,4 +46,8 @@ gcloud auth login --quiet --cred-file=${GOOGLE_APPLICATION_CREDENTIALS}
 gcloud config set project $GOOGLE_CLOUD_PROJECT
 gsutil cp $SNAPSHOT_DIR/main-wp-website.sql.gz "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/main-wp-website.sql.gz"
 gsutil cp $SNAPSHOT_DIR/uploads.tar.gz "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/uploads.tar.gz" 
+if [ -f "$WPHB_OPTIONS_FILE" ]; then
+    gsutil cp $WPHB_OPTIONS_FILE "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/wphb-cache.php"
+fi
+
 echo "backup complete"

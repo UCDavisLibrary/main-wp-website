@@ -6,6 +6,8 @@ UPLOADS_TAR_FILE=uploads.tar.gz
 UPLOADS_DIR=/uploads
 WP_SCRIPTS_DIR=/util-cmds/wp-scripts
 MYSQL_DUMP_FILE=main-wp-website.sql.gz
+WPHB_CACHE_DIR=/wphb-cache
+WPHB_OPTIONS_FILE=wphb-cache.php
 WP_SERVER_URL=${SERVER_URL:-http://localhost:3000}
 
 shopt -s expand_aliases
@@ -102,6 +104,21 @@ else
     fi
   else
     echo "Uploads folder has data. Skipping hydration."
+  fi
+
+  # check hummingbird caching plugin options
+  WPHB_FILE_COUNT=$(ls -1q $WPHB_CACHE_DIR | wc -l)
+  if [[ $WPHB_FILE_COUNT == 0 ]]; then
+    echo "Hummingbird cache options are missing, attempting to pull content for google cloud bucket"
+
+    gcloud auth login --quiet --cred-file=${GOOGLE_APPLICATION_CREDENTIALS}
+    gcloud config set project $GOOGLE_CLOUD_PROJECT
+    
+    echo "Downloading: gs://${GOOGLE_CLOUD_BUCKET}/${DATA_ENV}/${WPHB_OPTIONS_FILE}"
+    gsutil cp "gs://${GOOGLE_CLOUD_BUCKET}/${DATA_ENV}/${WPHB_OPTIONS_FILE}" $WPHB_CACHE_DIR/$WPHB_OPTIONS_FILE
+    chown www-data:www-data $WPHB_CACHE_DIR/$WPHB_OPTIONS_FILE
+  else
+    echo "Hummingbird cache options exist. Skipping hydration."
   fi
 
 fi
