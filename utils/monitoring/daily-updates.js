@@ -33,7 +33,7 @@ const pool = mysql.createPool({
 // setup cron job
 new CronJob(
   // default to 8 am
-	process.env.CHANGES_CRON || '0 8 * * *', 
+	process.env.CHANGES_CRON || '0 8 * * *',
 	run,
 	null,
 	true,
@@ -43,11 +43,12 @@ new CronJob(
 // setup slack
 let webhook;
 let url = process.env.SLACK_WEBHOOK_URL;
-if( url ) webhook = new IncomingWebhook(url);
+let enabled = process.env.SLACK_DAILY_UPDATES_WEBHOOK_ENABLED;
+if( url && enabled ) webhook = new IncomingWebhook(url);
 
 function createSlackMessage(data) {
   let serverUrl = process.env.WP_SERVER_URL || process.env.SERVER_URL;
-  
+
   let table = data.map(item => {
     let row = [];
     FIELDS.forEach(field => {
@@ -80,7 +81,7 @@ ${table}`,
      attachments: []
   };
 }
- 
+
 
 function run() {
   if( !url ) return;
@@ -89,5 +90,5 @@ function run() {
     if (error) throw error;
     if( results.length === 0 ) return;
     webhook.send(createSlackMessage(results));
-  });  
+  });
 }

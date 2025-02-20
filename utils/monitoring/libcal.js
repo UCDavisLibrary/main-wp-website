@@ -43,7 +43,8 @@ new CronJob(
 // setup slack
 let webhook;
 let url = process.env.ITIS_SLACK_WEBHOOK_URL;
-if( url ) webhook = new IncomingWebhook(url);
+let enabled = process.env.ITIS_SLACK_LIBCAL_ENABLED;
+if( url && enabled ) webhook = new IncomingWebhook(url);
 
 function createSlackMessage(data) {
   let serverUrl = process.env.WP_SERVER_URL || process.env.SERVER_URL || 'http://localhost:3000';
