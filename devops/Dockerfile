@@ -15,6 +15,8 @@ ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.11.17.zip"
 ARG PLUGIN_SMUSH="smush-pro-3.16.9.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.2.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.28.zip"
+ARG UCDLIB_THEME_WP_NODE_IMAGE
+ARG UCDLIB_WP_PLUGINS_NODE_IMAGE
 
 # Download third-party plugins from cloud bucket
 # note, they still have to be activated
@@ -48,147 +50,9 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 && gsutil cp gs://${PLUGINS_BUCKET}/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/defender-pro/${PLUGIN_DEFENDER} .
 
-FROM node:${NODE_VERSION} AS ucdlib-theme-wp
 
-RUN mkdir -p /plugin/ucdlib-theme-wp/src/public
-WORKDIR /plugin/ucdlib-theme-wp/src/public
-COPY ucdlib-theme-wp/src/public/package.json package.json
-RUN npm install --only=prod
-
-RUN mkdir -p /plugin/ucdlib-theme-wp/src/editor
-WORKDIR /plugin/ucdlib-theme-wp/src/editor
-COPY ucdlib-theme-wp/src/editor/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-theme-wp
-COPY ucdlib-theme-wp/theme theme
-COPY ucdlib-theme-wp/views views
-COPY ucdlib-theme-wp/assets assets
-COPY ucdlib-theme-wp/src/editor/index.js src/editor/index.js
-COPY ucdlib-theme-wp/src/editor/lib src/editor/lib
-COPY ucdlib-theme-wp/src/public/index.js src/public/index.js
-COPY ucdlib-theme-wp/src/public/scss src/public/scss
-COPY ucdlib-theme-wp/src/public/lib src/public/lib
-COPY ucdlib-theme-wp/src/public/elements src/public/elements
-COPY ucdlib-theme-wp/src/public/page-scripts src/public/page-scripts
-
-FROM node:${NODE_VERSION} AS ucdlib-assets
-
-RUN mkdir -p /plugin/ucdlib-assets/src/public
-WORKDIR /plugin/ucdlib-assets/src/public
-COPY ucdlib-wp-plugins/ucdlib-assets/src/public/package.json package.json
-RUN npm install
-
-RUN mkdir -p /plugin/ucdlib-assets/src/editor
-WORKDIR /plugin/ucdlib-assets/src/editor
-COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/package.json package.json
-RUN npm install
-
-WORKDIR /plugin/ucdlib-assets
-COPY ucdlib-wp-plugins/ucdlib-assets/assets assets
-COPY ucdlib-wp-plugins/ucdlib-assets/views views
-COPY ucdlib-wp-plugins/ucdlib-assets/includes includes
-COPY ucdlib-wp-plugins/ucdlib-assets/ucdlib-assets.php ucdlib-assets.php
-COPY ucdlib-wp-plugins/ucdlib-assets/src/editor/ucdlib-editor.js src/editor/ucdlib-editor.js
-COPY ucdlib-wp-plugins/ucdlib-assets/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-assets/src/public/lib src/public/lib
-
-FROM node:${NODE_VERSION} AS ucdlib-locations
-
-RUN mkdir -p /plugin/ucdlib-locations/src/public
-WORKDIR /plugin/ucdlib-locations/src/public
-COPY ucdlib-wp-plugins/ucdlib-locations/src/public/package.json package.json
-RUN npm install --only=prod
-
-RUN mkdir -p /plugin/ucdlib-locations/src/editor
-WORKDIR /plugin/ucdlib-locations/src/editor
-COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-locations
-COPY ucdlib-wp-plugins/ucdlib-locations/acf-json acf-json
-COPY ucdlib-wp-plugins/ucdlib-locations/includes includes
-COPY ucdlib-wp-plugins/ucdlib-locations/views views
-COPY ucdlib-wp-plugins/ucdlib-locations/ucdlib-locations.php ucdlib-locations.php
-COPY ucdlib-wp-plugins/ucdlib-locations/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-locations/src/public/lib src/public/lib
-COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/index.js src/editor/index.js
-COPY ucdlib-wp-plugins/ucdlib-locations/src/editor/lib src/editor/lib
-
-FROM node:${NODE_VERSION} AS ucdlib-migration
-
-RUN mkdir -p /plugin/ucdlib-migration/src/editor
-WORKDIR /plugin/ucdlib-migration/src/editor
-COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-migration
-COPY ucdlib-wp-plugins/ucdlib-migration/includes includes
-COPY ucdlib-wp-plugins/ucdlib-migration/views views
-COPY ucdlib-wp-plugins/ucdlib-migration/ucdlib-migration.php ucdlib-migration.php
-COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/index.js src/editor/index.js
-COPY ucdlib-wp-plugins/ucdlib-migration/src/editor/lib src/editor/lib
-
-FROM node:${NODE_VERSION} AS ucdlib-directory
-
-RUN mkdir -p /plugin/ucdlib-directory/src/editor
-WORKDIR /plugin/ucdlib-directory/src/editor
-COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/package.json package.json
-RUN npm install --only=prod
-
-RUN mkdir -p /plugin/ucdlib-directory/src/public
-WORKDIR /plugin/ucdlib-directory/src/public
-COPY ucdlib-wp-plugins/ucdlib-directory/src/public/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-directory
-COPY ucdlib-wp-plugins/ucdlib-directory/acf-json acf-json
-COPY ucdlib-wp-plugins/ucdlib-directory/includes includes
-COPY ucdlib-wp-plugins/ucdlib-directory/views views
-COPY ucdlib-wp-plugins/ucdlib-directory/ucdlib-directory.php ucdlib-directory.php
-COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/index.js src/editor/index.js
-COPY ucdlib-wp-plugins/ucdlib-directory/src/editor/lib src/editor/lib
-COPY ucdlib-wp-plugins/ucdlib-directory/src/public/src src/public/src
-COPY ucdlib-wp-plugins/ucdlib-directory/src/public/index.js src/public/index.js
-
-FROM node:${NODE_VERSION} AS ucdlib-search
-RUN mkdir -p /plugin/ucdlib-search/src/public
-WORKDIR /plugin/ucdlib-search/src/public
-COPY ucdlib-wp-plugins/ucdlib-search/src/public/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-search
-#COPY ucdlib-wp-plugins/ucdlib-search/acf-json acf-json
-COPY ucdlib-wp-plugins/ucdlib-search/assets assets
-COPY ucdlib-wp-plugins/ucdlib-search/includes includes
-COPY ucdlib-wp-plugins/ucdlib-search/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-search/src/public/lib src/public/lib
-COPY ucdlib-wp-plugins/ucdlib-search/views views
-COPY ucdlib-wp-plugins/ucdlib-search/ucdlib-search.php ucdlib-search.php
-
-FROM node:${NODE_VERSION} AS ucdlib-special
-
-RUN mkdir -p /plugin/ucdlib-special/src/public
-WORKDIR /plugin/ucdlib-special/src/public
-COPY ucdlib-wp-plugins/ucdlib-special/src/public/package.json package.json
-RUN npm install --only=prod
-
-RUN mkdir -p /plugin/ucdlib-special/src/editor
-WORKDIR /plugin/ucdlib-special/src/editor
-COPY ucdlib-wp-plugins/ucdlib-special/src/editor/package.json package.json
-RUN npm install --only=prod
-
-WORKDIR /plugin/ucdlib-special
-COPY ucdlib-wp-plugins/ucdlib-special/acf-json acf-json
-COPY ucdlib-wp-plugins/ucdlib-special/includes includes
-COPY ucdlib-wp-plugins/ucdlib-special/views views
-COPY ucdlib-wp-plugins/ucdlib-special/ucdlib-special.php ucdlib-special.php
-COPY ucdlib-wp-plugins/ucdlib-special/src/public/index.js src/public/index.js
-COPY ucdlib-wp-plugins/ucdlib-special/src/public/src src/public/src
-COPY ucdlib-wp-plugins/ucdlib-special/src/editor/index.js src/editor/index.js
-COPY ucdlib-wp-plugins/ucdlib-special/src/editor/lib src/editor/lib
-
-
+FROM ${UCDLIB_THEME_WP_NODE_IMAGE} AS ucdlib-theme-wp
+FROM ${UCDLIB_WP_PLUGINS_NODE_IMAGE} AS ucdlib-wp-plugins
 FROM wordpress:6.7.1 AS wordpress
 
 ARG WP_SRC_ROOT
@@ -290,9 +154,9 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX}
 
 # our forms rt extension
-RUN git clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
-&& cd forminator-addon-rt \
-&& git checkout v2.0.0
+RUN git -c advice.detachedHead=false \
+	clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
+	--branch v2.0.0 --single-branch --depth 1
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
@@ -300,13 +164,13 @@ RUN cd $THEME_ROOT/ucdlib-theme-wp/src/editor && npm link \
 && cd $THEME_ROOT/ucdlib-theme-wp/src/public && npm link
 
 # copy our plugins
-COPY --from=ucdlib-locations /plugin/ucdlib-locations ucdlib-locations
-COPY --from=ucdlib-migration /plugin/ucdlib-migration ucdlib-migration
-COPY --from=ucdlib-directory /plugin/ucdlib-directory ucdlib-directory
-COPY --from=ucdlib-special /plugin/ucdlib-special ucdlib-special
-COPY --from=ucdlib-search /plugin/ucdlib-search ucdlib-search
-COPY --from=ucdlib-assets /plugin/ucdlib-assets ucdlib-assets
-COPY ucdlib-wp-plugins/ucd-cas ucd-cas
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-locations ucdlib-locations
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-migration ucdlib-migration
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-directory ucdlib-directory
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-special ucdlib-special
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-search ucdlib-search
+COPY --from=ucdlib-wp-plugins /plugin/ucdlib-assets ucdlib-assets
+COPY --from=ucdlib-wp-plugins /plugin/ucd-cas ucd-cas
 
 # link theme private package
 RUN cd $PLUGIN_ROOT/ucdlib-locations/src/editor && npm link @ucd-lib/brand-theme-editor \
@@ -351,6 +215,10 @@ WORKDIR $WP_SRC_ROOT
 # override docker entry point
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-wp-plugins /cork-build-info/ucdlib-wp-plugins.json /cork-build-info/ucdlib-wp-plugins.json
+COPY --from=ucdlib-theme-wp /cork-build-info/ucdlib-theme-wp.json /cork-build-info/ucdlib-theme-wp.json
 
 # start apache
 CMD ["apache2-foreground"]

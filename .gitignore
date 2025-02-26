@@ -3,3 +3,5 @@ node_modules
 wp-api-etl/lib/.http-cache
 .env
 .DS_Store
+corkbuild.Dockerfile
+*.cork-build.json

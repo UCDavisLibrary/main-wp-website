@@ -1,0 +1,18 @@
+metrics:
+  receivers:
+    apache:
+      type: apache
+      server_status_url: http://wordpress:8080/server-status?auto
+  service:
+    pipelines:
+      apache:
+        receivers:
+        - apache
+
+processors:
+  # Used for Google generic_node mapping.
+  resource:
+    attributes:
+    - key: node_id
+      value: "testing"
+      action: upsert

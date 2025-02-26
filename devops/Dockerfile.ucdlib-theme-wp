@@ -1,0 +1,30 @@
+ARG NODE_VERSION
+ARG UCDLIB_THEME_WP_SRC_IMAGE
+
+FROM ${UCDLIB_THEME_WP_SRC_IMAGE} AS ucdlib-theme-wp-src
+FROM node:${NODE_VERSION} AS ucdlib-theme-wp
+
+RUN mkdir -p /plugin/ucdlib-theme-wp/src/public
+WORKDIR /plugin/ucdlib-theme-wp/src/public
+COPY --from=ucdlib-theme-wp-src /src/src/public/package.json package.json
+RUN npm install --only=prod
+
+RUN mkdir -p /plugin/ucdlib-theme-wp/src/editor
+WORKDIR /plugin/ucdlib-theme-wp/src/editor
+COPY --from=ucdlib-theme-wp-src /src/src/editor/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-theme-wp
+COPY --from=ucdlib-theme-wp-src /src/theme theme
+COPY --from=ucdlib-theme-wp-src /src/views views
+COPY --from=ucdlib-theme-wp-src /src/assets assets
+COPY --from=ucdlib-theme-wp-src /src/src/editor/index.js src/editor/index.js
+COPY --from=ucdlib-theme-wp-src /src/src/editor/lib src/editor/lib
+COPY --from=ucdlib-theme-wp-src /src/src/public/index.js src/public/index.js
+COPY --from=ucdlib-theme-wp-src /src/src/public/scss src/public/scss
+COPY --from=ucdlib-theme-wp-src /src/src/public/lib src/public/lib
+COPY --from=ucdlib-theme-wp-src /src/src/public/elements src/public/elements
+COPY --from=ucdlib-theme-wp-src /src/src/public/page-scripts src/public/page-scripts
+
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-theme-wp-src /cork-build-info/ucdlib-theme-wp.json /cork-build-info/ucdlib-theme-wp.json

@@ -1,0 +1,121 @@
+ARG NODE_VERSION
+ARG UCDLIB_WP_PLUGINS_SRC_IMAGE
+
+FROM ${UCDLIB_WP_PLUGINS_SRC_IMAGE} AS ucdlib-wp-plugins-src
+FROM node:${NODE_VERSION} AS ucdlib-wp-plugins
+
+# Assets
+RUN mkdir -p /plugin/ucdlib-assets/src/public
+WORKDIR /plugin/ucdlib-assets/src/public
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/src/public/package.json package.json
+RUN npm install
+
+RUN mkdir -p /plugin/ucdlib-assets/src/editor
+WORKDIR /plugin/ucdlib-assets/src/editor
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/src/editor/package.json package.json
+RUN npm install
+
+WORKDIR /plugin/ucdlib-assets
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/assets assets
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/ucdlib-assets.php ucdlib-assets.php
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/src/editor/ucdlib-editor.js src/editor/ucdlib-editor.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/src/public/index.js src/public/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-assets/src/public/lib src/public/lib
+
+# Locations
+RUN mkdir -p /plugin/ucdlib-locations/src/public
+WORKDIR /plugin/ucdlib-locations/src/public
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/public/package.json package.json
+RUN npm install --only=prod
+
+RUN mkdir -p /plugin/ucdlib-locations/src/editor
+WORKDIR /plugin/ucdlib-locations/src/editor
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/editor/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-locations
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/acf-json acf-json
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/ucdlib-locations.php ucdlib-locations.php
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/public/index.js src/public/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/public/lib src/public/lib
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/editor/index.js src/editor/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-locations/src/editor/lib src/editor/lib
+
+# Migration
+RUN mkdir -p /plugin/ucdlib-migration/src/editor
+WORKDIR /plugin/ucdlib-migration/src/editor
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/src/editor/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-migration
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/ucdlib-migration.php ucdlib-migration.php
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/src/editor/index.js src/editor/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-migration/src/editor/lib src/editor/lib
+
+# Directory
+RUN mkdir -p /plugin/ucdlib-directory/src/editor
+WORKDIR /plugin/ucdlib-directory/src/editor
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/editor/package.json package.json
+RUN npm install --only=prod
+
+RUN mkdir -p /plugin/ucdlib-directory/src/public
+WORKDIR /plugin/ucdlib-directory/src/public
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/public/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-directory
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/acf-json acf-json
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/ucdlib-directory.php ucdlib-directory.php
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/editor/index.js src/editor/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/editor/lib src/editor/lib
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/public/src src/public/src
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-directory/src/public/index.js src/public/index.js
+
+# Search
+RUN mkdir -p /plugin/ucdlib-search/src/public
+WORKDIR /plugin/ucdlib-search/src/public
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/src/public/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-search
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/assets assets
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/src/public/index.js src/public/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/src/public/lib src/public/lib
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-search/ucdlib-search.php ucdlib-search.php
+
+# Special
+RUN mkdir -p /plugin/ucdlib-special/src/public
+WORKDIR /plugin/ucdlib-special/src/public
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/public/package.json package.json
+RUN npm install --only=prod
+
+RUN mkdir -p /plugin/ucdlib-special/src/editor
+WORKDIR /plugin/ucdlib-special/src/editor
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/editor/package.json package.json
+RUN npm install --only=prod
+
+WORKDIR /plugin/ucdlib-special
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/acf-json acf-json
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/includes includes
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/views views
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/ucdlib-special.php ucdlib-special.php
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/public/index.js src/public/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/public/src src/public/src
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/editor/index.js src/editor/index.js
+COPY --from=ucdlib-wp-plugins-src /src/ucdlib-special/src/editor/lib src/editor/lib
+
+# CAS
+COPY --from=ucdlib-wp-plugins-src /src/ucd-cas /plugin/ucd-cas
+
+RUN mkdir /cork-build-info
+COPY --from=ucdlib-wp-plugins-src /cork-build-info/ucdlib-wp-plugins.json /cork-build-info/ucdlib-wp-plugins.json
