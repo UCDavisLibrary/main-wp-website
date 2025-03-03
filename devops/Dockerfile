@@ -37,7 +37,7 @@ ARG PLUGIN_BROKEN_LINK_CHECKER
 ARG PLUGIN_DEFENDER
 ARG PLUGIN_LIGHTBOX
 
-RUN echo --mount=type=secret,id=google_key gcloud auth activate-service-account --key-file=/run/secrets/google_key
+RUN --mount=type=secret,id=google_key gcloud auth activate-service-account --key-file=/run/secrets/google_key
 RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/redirection/${PLUGIN_REDIRECTION} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/wpmudev-updates/${PLUGIN_WPMUDEV_UPDATES} . \
