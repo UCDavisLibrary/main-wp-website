@@ -199,16 +199,6 @@ RUN rm -rf $THEME_ROOT/ucdlib-theme-wp/src/public/node_modules \
 && rm -rf $PLUGIN_ROOT/ucdlib-special/src/public/node_modules \
 && rm -rf $PLUGIN_ROOT/ucdlib-special/src/editor/node_modules
 
-# set build tags
-ARG WEBSITE_TAG
-ENV WEBSITE_TAG ${WEBSITE_TAG}
-ARG APP_VERSION
-ENV APP_VERSION ${APP_VERSION}
-ARG BUILD_NUM
-ENV BUILD_NUM ${BUILD_NUM}
-ARG BUILD_TIME
-ENV BUILD_TIME ${BUILD_TIME}
-
 # Back to site root so wordpress can do the rest of its thing
 WORKDIR $WP_SRC_ROOT
 
