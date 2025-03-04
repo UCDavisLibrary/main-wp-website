@@ -34,8 +34,10 @@
         "build-arg" : [
           "NODE_VERSION=20",
           "UCDLIB_THEME_WP_NODE_IMAGE=${main-wp-website.node-ucdlib-theme-wp}",
-          "UCDLIB_WP_PLUGINS_NODE_IMAGE=${main-wp-website.node-ucdlib-wp-plugins}",
-          "GOOGLE_KEY_FILE_CONTENT=${secret.main-website-content-reader-key}"
+          "UCDLIB_WP_PLUGINS_NODE_IMAGE=${main-wp-website.node-ucdlib-wp-plugins}"
+        ],
+        "secret" : [
+          "id=google_key,env=MAIN_WEBSITE_CONTENT_READER_KEY"
         ]
       }
     },
