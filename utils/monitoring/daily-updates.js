@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import mysql from 'mysql';
+import mysql from 'mysql2/promise';
 import { fileURLToPath } from 'url';
 import { IncomingWebhook } from '@slack/webhook';
 import { CronJob } from 'cron';
@@ -8,13 +8,13 @@ import { CronJob } from 'cron';
 // load sql
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const updatesQuery = fs.readFileSync(path.join(__dirname, 'daily-updates.sql'), 'utf-8');
-const TABLE_HEADERS = ['Name', 'Type', 'User', 'Original Author', 'Revisions', 'Last Revision', ];
+const TABLE_HEADERS = ['Name', 'Type', 'User', 'Original Author', 'Revisions', 'Last Revision'];
 const FIELDS = ['post_name', 'type', 'updated_by', 'created_by', 'update_count', 'last_updated'];
 
 // parse host/port of db
 let host = process.env.WORDPRESS_DB_HOST || process.env.DB_HOST || 'db';
 let port = 3306;
-if( host.match(':') ) {
+if (host.match(':')) {
   port = host.split(':')[1];
   host = host.split(':')[0];
 }
@@ -22,29 +22,30 @@ let days = parseInt(process.env.CHANGES_NUM_DAYS || 1);
 
 // setup mysql connection
 const pool = mysql.createPool({
-  connectionLimit : 3,
-  host            : host,
-  port            : port,
-  user            : process.env.WORDPRESS_DB_USER || process.env.DB_USER || 'wordpress',
-  password        : process.env.WORDPRESS_DB_PASSWORD || process.env.DB_PASSWORD || 'wordpress',
-  database        : process.env.WORDPRESS_DB_DATABASE || process.env.DB_DATABASE  || 'wordpress'
+  connectionLimit: 3,
+  host: host,
+  port: port,
+  user: process.env.WORDPRESS_DB_USER || process.env.DB_USER || 'wordpress',
+  password: process.env.WORDPRESS_DB_PASSWORD || process.env.DB_PASSWORD || 'wordpress',
+  database: process.env.WORDPRESS_DB_DATABASE || process.env.DB_DATABASE || 'wordpress',
+  multipleStatements: true
 });
 
 // setup cron job
 new CronJob(
   // default to 8 am
-	process.env.CHANGES_CRON || '0 8 * * *',
-	run,
-	null,
-	true,
-	'America/Los_Angeles'
+  process.env.CHANGES_CRON || '0 8 * * *',
+  run,
+  null,
+  true,
+  'America/Los_Angeles'
 );
 
 // setup slack
 let webhook;
 let url = process.env.SLACK_WEBHOOK_URL;
 let enabled = process.env.SLACK_DAILY_UPDATES_WEBHOOK_ENABLED;
-if( url && enabled ) webhook = new IncomingWebhook(url);
+if (url && enabled) webhook = new IncomingWebhook(url);
 
 function createSlackMessage(data) {
   let serverUrl = process.env.WP_SERVER_URL || process.env.SERVER_URL;
@@ -52,11 +53,11 @@ function createSlackMessage(data) {
   let table = data.map(item => {
     let row = [];
     FIELDS.forEach(field => {
-      if( field === 'post_name' ) {
-        row.push('<'+serverUrl+'?p='+item.post_id+'|'+item[field]+'>');
-      } else if ( field === 'updated_by' || field === 'created_by' ) {
+      if (field === 'post_name') {
+        row.push('<' + serverUrl + '?p=' + item.post_id + '|' + item[field] + '>');
+      } else if (field === 'updated_by' || field === 'created_by') {
         row.push(item[field].replace(/\@ucdavis.edu/, ''));
-      } else if ( field === 'last_updated' ) {
+      } else if (field === 'last_updated') {
         row.push(item[field].toLocaleString());
       } else {
         row.push(item[field]);
@@ -69,26 +70,26 @@ function createSlackMessage(data) {
 
   - ${table.join('\n  - ')}`;
 
-
   let now = new Date();
-  let yesterday = new Date(now.getTime() - (1000 * 60 * 60 *24));
+  let yesterday = new Date(now.getTime() - (1000 * 60 * 60 * 24));
 
   return {
-     text: `️✏️ New Website Updates: ${yesterday.toLocaleString()} - ${now.toLocaleString()}
+    text: `️✏️ New Website Updates: ${yesterday.toLocaleString()} - ${now.toLocaleString()}
 
 ${table}`,
-     mrkdwn: true,
-     attachments: []
+    mrkdwn: true,
+    attachments: []
   };
 }
 
+async function run() {
+  if (!url) return;
 
-function run() {
-  if( !url ) return;
-
-  pool.query(updatesQuery, [days], (error, results, fields) => {
-    if (error) throw error;
-    if( results.length === 0 ) return;
-    webhook.send(createSlackMessage(results));
-  });
+  try {
+    const [results] = await pool.query(updatesQuery, [days]);
+    if (results.length === 0) return;
+    await webhook.send(createSlackMessage(results));
+  } catch (error) {
+    console.error(error);
+  }
 }
