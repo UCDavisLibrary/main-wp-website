@@ -12,7 +12,7 @@ ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.15.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.5.2.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.20.zip"
-ARG PLUGIN_SMUSH="smush-pro-3.20.zip"
+ARG PLUGIN_SMUSH="smush-pro-3.19.1.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.5.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.29.zip"
 ARG UCDLIB_THEME_WP_NODE_IMAGE
