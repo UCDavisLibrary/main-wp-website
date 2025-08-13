@@ -36,7 +36,7 @@ fi
 alias mysql="mysql --user=$WORDPRESS_DB_USER --host=$WORDPRESS_DB_JUST_HOST --port=$WORDPRESS_DB_JUST_PORT --password=$WORDPRESS_DB_PASSWORD $WORDPRESS_DB_DATABASE"
 
 echo "Generating sqldump file"
-mysqldump --password="$MYSQL_ROOT_PASSWORD" --host=$WORDPRESS_DB_JUST_HOST --port=$WORDPRESS_DB_JUST_PORT "$WORDPRESS_DB_DATABASE" | gzip > $SNAPSHOT_DIR/main-wp-website.sql.gz
+mysqldump --ssl --ssl-verify-server-cert=OFF --password="$MYSQL_ROOT_PASSWORD" --host=$WORDPRESS_DB_JUST_HOST --port=$WORDPRESS_DB_JUST_PORT "$WORDPRESS_DB_DATABASE" | gzip > $SNAPSHOT_DIR/main-wp-website.sql.gz
 
 echo "Compressing wp media uploads directory"
 tar -czvf $SNAPSHOT_DIR/uploads.tar.gz $UPLOAD_DIR
@@ -45,7 +45,7 @@ echo "uploading files to cloud bucket ${BACKUP_ENV}"
 gcloud auth login --quiet --cred-file=${GOOGLE_APPLICATION_CREDENTIALS}
 gcloud config set project $GOOGLE_CLOUD_PROJECT
 gsutil cp $SNAPSHOT_DIR/main-wp-website.sql.gz "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/main-wp-website.sql.gz"
-gsutil cp $SNAPSHOT_DIR/uploads.tar.gz "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/uploads.tar.gz" 
+gsutil cp $SNAPSHOT_DIR/uploads.tar.gz "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/uploads.tar.gz"
 if [ -f "$WPHB_OPTIONS_FILE" ]; then
     gsutil cp $WPHB_OPTIONS_FILE "gs://${GOOGLE_CLOUD_BUCKET}/${BACKUP_ENV}/wphb-cache.php"
 fi
