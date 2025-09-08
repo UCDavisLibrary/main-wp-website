@@ -13,12 +13,6 @@ RUN mkdir -p /usr/share/keyrings \
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
     > /etc/apt/sources.list.d/google-cloud-sdk.list
 
-# Monitoring
-# RUN curl -sSO https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh; \
-#   bash add-monitoring-agent-repo.sh --also-install
-RUN curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh; \
-    bash add-google-cloud-ops-agent-repo.sh --also-install
-
 # Install gcloud/gsutils
 RUN apt-get update && apt-get install -y mariadb-client \
   wait-for-it google-cloud-cli
