@@ -13,7 +13,7 @@
     "@google-cloud/monitoring": "^3.0.0",
     "@slack/webhook": "^6.1.0",
     "cron": "^2.1.0",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.14.3",
     "node-fetch": "^3.2.9"
   }
 }

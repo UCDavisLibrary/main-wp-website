@@ -20,7 +20,7 @@ else
   WORDPRESS_DB_JUST_HOST=$WORDPRESS_DB_HOST
   WORDPRESS_DB_JUST_PORT=3306
 fi
-alias mysql="mysql --user=$WORDPRESS_DB_USER --host=$WORDPRESS_DB_JUST_HOST --port=$WORDPRESS_DB_JUST_PORT --password=$WORDPRESS_DB_PASSWORD $WORDPRESS_DB_DATABASE"
+alias mysql="mysql --ssl --ssl-verify-server-cert=OFF --user=$WORDPRESS_DB_USER --host=$WORDPRESS_DB_JUST_HOST --port=$WORDPRESS_DB_JUST_PORT --password=$WORDPRESS_DB_PASSWORD $WORDPRESS_DB_DATABASE"
 
 # wait for db to start up
 wait-for-it $WORDPRESS_DB_JUST_HOST:$WORDPRESS_DB_JUST_PORT -t 0
@@ -28,7 +28,7 @@ wait-for-it $WORDPRESS_DB_JUST_HOST:$WORDPRESS_DB_JUST_PORT -t 0
 function updateDbHost {
   DATA_ENV_URL=$(echo "SELECT option_value from wp_options WHERE option_name='siteurl' LIMIT 1" | mysql -s)
   echo "Updating links from ${DATA_ENV_URL} to ${WP_SERVER_URL}"
-  
+
   mysql -e "update wp_options set option_value='${WP_SERVER_URL}' where option_name='siteurl';"
   mysql -e "update wp_options set option_value='${WP_SERVER_URL}' where option_name='home';"
   mysql -e "UPDATE wp_posts SET post_content = REPLACE(post_content, '${DATA_ENV_URL}', '${WP_SERVER_URL}');"
@@ -44,7 +44,7 @@ if [[ -z "$RUN_INIT" || -z "$DATA_ENV" ]]; then
   echo "Skipping db and media uploads hydration.";
   if [[ -z "$RUN_INIT" ]]; then
     echo "No RUN_INIT flag found."
-  else 
+  else
     echo "DATA_ENV environmental variable is not set."
   fi
 else
@@ -83,8 +83,8 @@ else
 
   if [[ $UPLOADS_FILE_COUNT == 0 ]]; then
     echo "Uploads folder is empty, attempting to pull content for google cloud bucket"
-  
-    # WHY??? 
+
+    # WHY???
     gcloud auth login --quiet --cred-file=${GOOGLE_APPLICATION_CREDENTIALS}
     gcloud config set project $GOOGLE_CLOUD_PROJECT
 
@@ -113,7 +113,7 @@ else
 
     gcloud auth login --quiet --cred-file=${GOOGLE_APPLICATION_CREDENTIALS}
     gcloud config set project $GOOGLE_CLOUD_PROJECT
-    
+
     echo "Downloading: gs://${GOOGLE_CLOUD_BUCKET}/${DATA_ENV}/${WPHB_OPTIONS_FILE}"
     gsutil cp "gs://${GOOGLE_CLOUD_BUCKET}/${DATA_ENV}/${WPHB_OPTIONS_FILE}" $WPHB_CACHE_DIR/$WPHB_OPTIONS_FILE
     chown www-data:www-data $WPHB_CACHE_DIR/$WPHB_OPTIONS_FILE

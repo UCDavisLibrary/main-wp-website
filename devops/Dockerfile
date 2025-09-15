@@ -4,11 +4,11 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG PLUGINS_BUCKET=wordpress-general/plugins
 ARG NODE_VERSION=20
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.4.2.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.4.3.zip"
 ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.6.zip"
-ARG PLUGIN_DEFENDER="defender-pro-5.2.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.44.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.14.1.zip"
+ARG PLUGIN_DEFENDER="defender-pro-5.4.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.45.1.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.15.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.5.2.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.20.zip"
@@ -53,7 +53,7 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 
 FROM ${UCDLIB_THEME_WP_NODE_IMAGE} AS ucdlib-theme-wp
 FROM ${UCDLIB_WP_PLUGINS_NODE_IMAGE} AS ucdlib-wp-plugins
-FROM wordpress:6.8.1 AS wordpress
+FROM wordpress:6.8.2 AS wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
