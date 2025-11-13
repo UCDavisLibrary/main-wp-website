@@ -4,17 +4,18 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG PLUGINS_BUCKET=wordpress-general/plugins
 ARG NODE_VERSION=20
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.4.3.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.6.0.zip"
 ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.6.zip"
-ARG PLUGIN_DEFENDER="defender-pro-5.4.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.45.1.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.15.zip"
+ARG PLUGIN_DEFENDER="defender-pro-5.6.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.48.1.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.17.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.5.2.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.20.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.22.zip"
 ARG PLUGIN_SMUSH="smush-pro-3.19.1.zip"
 ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.5.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.29.zip"
+ARG PLUGIN_EDITORIA11Y="editoria11y-accessibility-checker-2.1.4.zip"
 ARG UCDLIB_THEME_WP_NODE_IMAGE
 ARG UCDLIB_WP_PLUGINS_NODE_IMAGE
 
@@ -36,6 +37,7 @@ ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
 ARG PLUGIN_DEFENDER
 ARG PLUGIN_LIGHTBOX
+ARG PLUGIN_EDITORIA11Y
 
 RUN --mount=type=secret,id=google_key gcloud auth activate-service-account --key-file=/run/secrets/google_key
 RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . \
@@ -48,12 +50,13 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 && gsutil cp gs://${PLUGINS_BUCKET}/smush-pro/${PLUGIN_SMUSH} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/hummingbird-pro/${PLUGIN_HUMMINGBIRD} . \
 && gsutil cp gs://${PLUGINS_BUCKET}/gallery-block-lightbox/${PLUGIN_LIGHTBOX} . \
-&& gsutil cp gs://${PLUGINS_BUCKET}/defender-pro/${PLUGIN_DEFENDER} .
+&& gsutil cp gs://${PLUGINS_BUCKET}/defender-pro/${PLUGIN_DEFENDER} . \
+&& gsutil cp gs://${PLUGINS_BUCKET}/editoria11y-accessibility-checker/${PLUGIN_EDITORIA11Y} .
 
 
 FROM ${UCDLIB_THEME_WP_NODE_IMAGE} AS ucdlib-theme-wp
 FROM ${UCDLIB_WP_PLUGINS_NODE_IMAGE} AS ucdlib-wp-plugins
-FROM wordpress:6.8.2 AS wordpress
+FROM wordpress:6.8.3 AS wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
@@ -75,6 +78,7 @@ ARG PLUGIN_WPMUDEV_UPDATES
 ARG PLUGIN_BROKEN_LINK_CHECKER
 ARG PLUGIN_DEFENDER
 ARG PLUGIN_LIGHTBOX
+ARG PLUGIN_EDITORIA11Y
 
 # Install Composer Package Manager (for Timber, Twig, and CAS)
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -141,6 +145,7 @@ COPY --from=gcloud /cache/${PLUGIN_SMUSH} .
 COPY --from=gcloud /cache/${PLUGIN_BROKEN_LINK_CHECKER} .
 COPY --from=gcloud /cache/${PLUGIN_DEFENDER} .
 COPY --from=gcloud /cache/${PLUGIN_LIGHTBOX} .
+COPY --from=gcloud /cache/${PLUGIN_EDITORIA11Y} .
 RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_REDIRECTION} && rm ${PLUGIN_REDIRECTION} \
 && unzip ${PLUGIN_WPMUDEV_UPDATES} && rm ${PLUGIN_WPMUDEV_UPDATES} \
@@ -151,7 +156,8 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 && unzip ${PLUGIN_SMUSH} && rm ${PLUGIN_SMUSH} \
 && unzip ${PLUGIN_BROKEN_LINK_CHECKER} && rm ${PLUGIN_BROKEN_LINK_CHECKER} \
 && unzip ${PLUGIN_DEFENDER} && rm ${PLUGIN_DEFENDER} \
-&& unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX}
+&& unzip ${PLUGIN_LIGHTBOX} && rm ${PLUGIN_LIGHTBOX} \
+&& unzip ${PLUGIN_EDITORIA11Y} && rm ${PLUGIN_EDITORIA11Y}
 
 # our forms rt extension
 RUN git -c advice.detachedHead=false \
