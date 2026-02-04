@@ -56,7 +56,7 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 
 FROM ${UCDLIB_THEME_WP_NODE_IMAGE} AS ucdlib-theme-wp
 FROM ${UCDLIB_WP_PLUGINS_NODE_IMAGE} AS ucdlib-wp-plugins
-FROM wordpress:6.9.0 AS wordpress
+FROM wordpress:6.9.1 AS wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
