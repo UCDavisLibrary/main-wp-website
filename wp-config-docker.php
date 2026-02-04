@@ -124,6 +124,9 @@ define( 'WP_AUTO_UPDATE_CORE', false );
 // Hummingbird page cache
 define('WP_CACHE', true);
 
+// Forminator encryption key
+define('FORMINATOR_ENCRYPTION_KEY', getenv_docker('FORMINATOR_ENCRYPTION_KEY', '') );
+
 if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 	eval($configExtra);
 }
