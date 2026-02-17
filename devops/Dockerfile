@@ -4,18 +4,18 @@ ARG PLUGIN_ROOT="$WP_SRC_ROOT/wp-content/plugins"
 ARG WP_LOG_ROOT=/var/log/wordpress
 ARG PLUGINS_BUCKET=wordpress-general/plugins
 ARG NODE_VERSION=20
-ARG PLUGIN_ACF="advanced-custom-fields-pro-6.6.0.zip"
-ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.6.zip"
-ARG PLUGIN_DEFENDER="defender-pro-5.6.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.48.1.zip"
-ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.17.zip"
-ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.zip"
-ARG PLUGIN_REDIRECTION="redirection-5.5.2.zip"
-ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.22.zip"
+ARG PLUGIN_ACF="advanced-custom-fields-pro-6.7.0.2.zip"
+ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.7.zip"
+ARG PLUGIN_DEFENDER="defender-pro-5.9.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.50.1.zip"
+ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.19.zip"
+ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.1.zip"
+ARG PLUGIN_REDIRECTION="redirection-5.6.1.zip"
+ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.24.zip"
 ARG PLUGIN_SMUSH="smush-pro-3.19.1.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.5.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.64.6.zip"
 ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-4.11.29.zip"
-ARG PLUGIN_EDITORIA11Y="editoria11y-accessibility-checker-2.1.4.zip"
+ARG PLUGIN_EDITORIA11Y="editoria11y-accessibility-checker-2.1.9.zip"
 ARG UCDLIB_THEME_WP_NODE_IMAGE
 ARG UCDLIB_WP_PLUGINS_NODE_IMAGE
 
@@ -56,7 +56,7 @@ RUN gsutil cp gs://${PLUGINS_BUCKET}/advanced-custom-fields-pro/${PLUGIN_ACF} . 
 
 FROM ${UCDLIB_THEME_WP_NODE_IMAGE} AS ucdlib-theme-wp
 FROM ${UCDLIB_WP_PLUGINS_NODE_IMAGE} AS ucdlib-wp-plugins
-FROM wordpress:6.8.3 AS wordpress
+FROM wordpress:6.9.1 AS wordpress
 
 ARG WP_SRC_ROOT
 ENV WP_SRC_ROOT=${WP_SRC_ROOT}
