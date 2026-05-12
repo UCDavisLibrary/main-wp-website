@@ -13,6 +13,7 @@ function transformRecord(post) {
     description : post.post_name,
     created : post.post_date_gmt,
     modified : post.post_modified_gmt,
+    hasParent : post.post_parent && post.post_parent != '0' ? true : false,
     content : '',
     blocks : {},
     subjects : [],
@@ -20,7 +21,8 @@ function transformRecord(post) {
     authors : [],
     ucd_hide_author: post.meta.ucd_hide_author ? true : false,
     menuOrder: post.menu_order ? post.menu_order : 0,
-    departments: []
+    departments: [],
+    firstAncestor: post.firstAncestor || null
   };
 
   setDates(record);
