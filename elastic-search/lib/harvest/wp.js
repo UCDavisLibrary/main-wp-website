@@ -76,7 +76,7 @@ class WPHarvest {
 
     try {
       let qResp = await mysql.query(`select 
-        p.ID, post_type, post_content, post_name, post_author, user_email, post_title, post_status, post_date_gmt, post_modified_gmt, menu_order 
+        p.ID, post_type, post_content, post_name, post_author, user_email, post_title, post_status, post_date_gmt, post_modified_gmt, menu_order, post_parent 
       from 
         wp_posts p
       left join wp_users u on p.post_author = u.ID
@@ -120,6 +120,27 @@ class WPHarvest {
         })
         .filter(item => termTypes.includes(item.taxonomy));
 
+      // get top-level parent post
+      if ( post.post_parent ) {
+        const ancestorResp = await mysql.query(`
+          WITH RECURSIVE ancestors AS (
+            SELECT ID, post_title, post_parent
+            FROM wp_posts
+            WHERE ID = ${post.post_parent}
+            UNION ALL
+            SELECT p.ID, p.post_title, p.post_parent
+            FROM wp_posts p
+            INNER JOIN ancestors a ON p.ID = a.post_parent
+            WHERE a.post_parent != 0
+          )
+          SELECT ID, post_title FROM ancestors ORDER BY post_parent ASC LIMIT 1;
+        `);
+        if ( ancestorResp.results.length ) {
+          const first = ancestorResp.results[0];
+          post.firstAncestor = { id: first.ID, title: first.post_title };
+        }
+      }
+
       // get post meta
       post.meta = {};
       qResp = await mysql.query(`select * from wp_postmeta where post_id = ${postId};`);
@@ -140,12 +161,15 @@ class WPHarvest {
       // curators
       if( post.meta.curators ) {
         post.meta.curators = post.meta.curators.map(item => unserialize(item))[0];
-        qResp = await mysql.query(`select * from wp_postmeta where meta_key = 'contactEmail' and post_id IN (?)`, [post.meta.curators]);
-        if( qResp.results.length ) {
-          post.meta.curator_emails = unserialize(qResp.results[0].meta_value)
-            .map(item => item.value)
+        if ( post.meta.curators?.length ) {
+          qResp = await mysql.query(`select * from wp_postmeta where meta_key = 'contactEmail' and post_id IN (?)`, [post.meta.curators]);
+          if( qResp.results.length ) {
+            post.meta.curator_emails = unserialize(qResp.results[0].meta_value)
+              .map(item => item.value)
+          }
         }
       }
+      
       // ucd_hide_author
       if( post.meta.ucd_hide_author ) {
         if( post.meta.ucd_hide_author.length && post.meta.ucd_hide_author[0] === '1' ) {

@@ -176,6 +176,10 @@
 
     "sortByDate" : {
       "type" : "date"
+    },
+
+    "hasParent" : {
+      "type" : "boolean"
     }
     
   }
