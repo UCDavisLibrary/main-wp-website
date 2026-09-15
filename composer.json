@@ -16,8 +16,8 @@
       }
     ],
     "require": {
-      "timber/timber": "2.4.0",
-      "apereo/phpcas" : "^1.6.1",
+      "timber/timber": "2.5.1",
+      "apereo/phpcas" : "^1.6.2",
       "elasticsearch/elasticsearch": "~7.0"
     },
     "config": {

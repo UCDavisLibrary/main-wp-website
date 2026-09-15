@@ -62,6 +62,11 @@ function transformRecord(post) {
     record.collectionType = post.meta.collectionType[0];
   }
 
+  // add description to content for collections
+  if ( post.post_type == 'collection' && post.meta.description ){
+    record.content += post.meta.description.join('\n');
+  }
+
   // parse the gutenberg block content
   parseBlocks(record, parse(post.post_content));
 
