@@ -7,15 +7,15 @@ ARG NODE_VERSION=20
 ARG PLUGIN_ACF="advanced-custom-fields-pro-6.8.10.zip"
 ARG PLUGIN_BROKEN_LINK_CHECKER="broken-link-checker-2.4.14.1.zip"
 ARG PLUGIN_DEFENDER="defender-pro-6.3.0.zip"
-ARG PLUGIN_FORMINATOR="forminator-pro-1.57.3.zip"
+ARG PLUGIN_FORMINATOR="forminator-pro-1.58.0.zip"
 ARG PLUGIN_HUMMINGBIRD="hummingbird-pro-3.21.2.zip"
 ARG PLUGIN_LIGHTBOX="gallery-block-lightbox-1.16.1.zip"
 ARG PLUGIN_REDIRECTION="redirection-5.10.1.zip"
 ARG PLUGIN_SMTP_MAILER="smtp-mailer-1.1.28.zip"
-ARG PLUGIN_SMUSH="smush-pro-4.3.3.zip"
-ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.66.1.zip"
-ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-5.0.2.zip"
-ARG PLUGIN_EDITORIA11Y="editoria11y-accessibility-checker-3.0.4.zip"
+ARG PLUGIN_SMUSH="smush-pro-4.3.4.zip"
+ARG PLUGIN_USER_ROLE_EDITOR="user-role-editor-4.66.2.zip"
+ARG PLUGIN_WPMUDEV_UPDATES="wpmu-dev-dashboard-5.0.3.zip"
+ARG PLUGIN_EDITORIA11Y="editoria11y-accessibility-checker-3.0.6.zip"
 ARG UCDLIB_THEME_WP_NODE_IMAGE
 ARG UCDLIB_WP_PLUGINS_NODE_IMAGE
 
