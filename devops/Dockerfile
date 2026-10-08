@@ -162,7 +162,7 @@ RUN unzip ${PLUGIN_ACF} && rm ${PLUGIN_ACF} \
 # our forms rt extension
 RUN git -c advice.detachedHead=false \
 	clone https://github.com/UCDavisLibrary/forminator-addon-rt.git \
-	--branch v2.0.2 --single-branch --depth 1
+	--branch v2.2.0 --single-branch --depth 1
 
 # copy our theme
 COPY --from=ucdlib-theme-wp /plugin/ucdlib-theme-wp $THEME_ROOT/ucdlib-theme-wp
